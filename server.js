@@ -20,6 +20,8 @@ const {
   ADMIN_ROLES,
   dispatchToZaloStreams,
   syncRequestToGoogleSheet,
+  fetchRequestsFromGoogleSheet,
+  lookupRequestFromGoogleSheet,
   generateGoogleSheetCsv,
   SecurityGuard
 } = require('./src/routing-and-security');
@@ -149,6 +151,48 @@ function createAppHandler(options = {}) {
   const maxHelpRequestsPerWindow = options.maxHelpRequestsPerWindow || 8;
   const maxChatPerWindow = options.maxChatPerWindow || 30;
   const isDemoMode = options.demoMode !== undefined ? Boolean(options.demoMode) : DEMO_MODE;
+  let lastSheetHydrateAt = 0;
+
+  // Đồng bộ đọc ngược 2 chiều từ Google Sheet (đảm bảo không mất hồ sơ khi Vercel Serverless ngủ đông)
+  async function hydrateFromGoogleSheetIfNeeded(db, force = false) {
+    const integrations = db.settings?.integrations || {};
+    const url = integrations.googleSheetWebhookUrl || process.env.GOOGLE_SHEET_WEBHOOK_URL || '';
+    if (!url) return db;
+    const now = Date.now();
+    if (!force && now - lastSheetHydrateAt < 45 * 1000) return db;
+
+    const remoteList = await fetchRequestsFromGoogleSheet(integrations);
+    lastSheetHydrateAt = Date.now();
+    if (!Array.isArray(remoteList) || remoteList.length === 0) return db;
+
+    const mergedMap = new Map();
+    for (const item of db.helpRequests || []) {
+      if (item && item.trackingCode) {
+        mergedMap.set(String(item.trackingCode).toUpperCase(), item);
+      }
+    }
+    for (const remoteItem of remoteList) {
+      if (!remoteItem || !remoteItem.trackingCode) continue;
+      const key = String(remoteItem.trackingCode).toUpperCase();
+      const existing = mergedMap.get(key);
+      if (!existing) {
+        mergedMap.set(key, remoteItem);
+      } else {
+        // Ưu tiên bản ghi đã có phản hồi hoặc có nhiều follow-up hơn
+        const remoteNewer =
+          (remoteItem.status === 'replied' && existing.status !== 'replied') ||
+          (remoteItem.studentFollowUps?.length || 0) > (existing.studentFollowUps?.length || 0);
+        if (remoteNewer) {
+          mergedMap.set(key, { ...existing, ...remoteItem });
+        }
+      }
+    }
+    db.helpRequests = Array.from(mergedMap.values()).sort((a, b) =>
+      String(b.createdAt || '').localeCompare(String(a.createdAt || ''))
+    );
+    writeDb(db);
+    return db;
+  }
 
   return async (req, res) => {
     try {
@@ -163,7 +207,7 @@ function createAppHandler(options = {}) {
 
       // 1. GET /api/bootstrap
       if (req.method === 'GET' && pathname === '/api/bootstrap') {
-        const db = readDb();
+        const db = await hydrateFromGoogleSheetIfNeeded(readDb());
         const requests = db.helpRequests || [];
 
         const zaloStats = {
@@ -360,12 +404,13 @@ function createAppHandler(options = {}) {
         const integrations = db.settings?.integrations || {};
         newRequest.zaloDispatch = await dispatchToZaloStreams(newRequest, integrations);
 
-        // Đồng bộ về Google Sheet Trung tâm của nhà trường
+        // Đồng bộ 2 chiều về Google Sheet Trung tâm & kích hoạt Email cảnh báo khẩn (nếu High/Critical)
         const totalExisting = (db.helpRequests || []).length;
         newRequest.googleSheetSync = await syncRequestToGoogleSheet(
           newRequest,
           integrations,
-          totalExisting + 1
+          totalExisting + 1,
+          { isNew: true }
         );
 
         db.helpRequests = [newRequest, ...(db.helpRequests || [])];
@@ -400,9 +445,18 @@ function createAppHandler(options = {}) {
           return sendJson(res, 400, { ok: false, error: 'Vui lòng nhập Mã Tra Cứu Bí Mật (VD: NA-7868).' });
         }
         const db = readDb();
-        const found = (db.helpRequests || []).find(
+        let found = (db.helpRequests || []).find(
           r => String(r.trackingCode).toUpperCase() === code
         );
+        // Nếu máy chủ Vercel vừa khởi động lại chưa có trong bộ nhớ tạm -> tự động đọc ngược 2 chiều từ Google Sheet!
+        if (!found) {
+          const fromSheet = await lookupRequestFromGoogleSheet(code, db.settings?.integrations || {});
+          if (fromSheet) {
+            found = fromSheet;
+            db.helpRequests = [fromSheet, ...(db.helpRequests || [])];
+            writeDb(db);
+          }
+        }
         if (!found) {
           return sendJson(res, 404, {
             ok: false,
@@ -441,9 +495,16 @@ function createAppHandler(options = {}) {
         }
 
         const db = readDb();
-        const idx = (db.helpRequests || []).findIndex(
+        let idx = (db.helpRequests || []).findIndex(
           r => String(r.trackingCode).toUpperCase() === trackingCode
         );
+        if (idx === -1) {
+          const fromSheet = await lookupRequestFromGoogleSheet(trackingCode, db.settings?.integrations || {});
+          if (fromSheet) {
+            db.helpRequests = [fromSheet, ...(db.helpRequests || [])];
+            idx = 0;
+          }
+        }
         if (idx === -1) {
           return sendJson(res, 404, { ok: false, error: 'Không tìm thấy mã hộp thư này.' });
         }
@@ -456,8 +517,17 @@ function createAppHandler(options = {}) {
           createdAt: new Date().toISOString()
         });
 
+        // Đồng bộ phản hồi nối tiếp lên Google Sheet 2 chiều
+        const integrations = db.settings?.integrations || {};
+        db.helpRequests[idx].googleSheetSync = await syncRequestToGoogleSheet(
+          db.helpRequests[idx],
+          integrations,
+          (db.helpRequests[idx].googleSheetSync?.rowNumber || idx + 2) - 1,
+          { isNew: false }
+        );
+
         writeDb(db);
-        const { privacyHash, ...safeRequest } = db.helpRequests[idx];
+        const { privacyHash, aiCoPilotBriefing, ...safeRequest } = db.helpRequests[idx];
         return sendJson(res, 200, {
           ok: true,
           request: safeRequest
@@ -491,9 +561,8 @@ function createAppHandler(options = {}) {
         });
       }
 
-      // 7. GET /api/counselor/requests - Danh sách hồ sơ theo Phân quyền Luồng Zalo & Đồng bộ Google Sheet
+      // 7. GET /api/counselor/requests - Danh sách hồ sơ theo Phân quyền Luồng Zalo & Đồng bộ Google Sheet 2 chiều
       if (req.method === 'GET' && pathname === '/api/counselor/requests') {
-        const db = readDb();
         const adminSession = security.verifyAdminSession(req);
         // Ở chế độ chạy dữ liệu thật (DEMO_DATA=off), BẮT BUỘC đăng nhập Mã PIN mới được xem hồ sơ học sinh
         if (!isDemoMode && !adminSession) {
@@ -503,6 +572,7 @@ function createAppHandler(options = {}) {
             error: 'Chế độ bảo mật nhà trường đang bật: Vui lòng nhập Mã PIN phân quyền để xem hồ sơ học sinh.'
           });
         }
+        const db = await hydrateFromGoogleSheetIfNeeded(readDb());
 
         const channelFilter = parsedUrl.searchParams.get('channel') || 'all';
 
@@ -574,9 +644,16 @@ function createAppHandler(options = {}) {
         }
 
         const db = readDb();
-        const idx = (db.helpRequests || []).findIndex(
+        let idx = (db.helpRequests || []).findIndex(
           r => String(r.trackingCode).toUpperCase() === trackingCode
         );
+        if (idx === -1) {
+          const fromSheet = await lookupRequestFromGoogleSheet(trackingCode, db.settings?.integrations || {});
+          if (fromSheet) {
+            db.helpRequests = [fromSheet, ...(db.helpRequests || [])];
+            idx = 0;
+          }
+        }
         if (idx === -1) {
           return sendJson(res, 404, { ok: false, error: 'Không tìm thấy hộp thư cần phản hồi.' });
         }
@@ -598,12 +675,13 @@ function createAppHandler(options = {}) {
         db.helpRequests[idx].repliedBy = repliedBy;
         db.helpRequests[idx].repliedAt = new Date().toISOString();
 
-        // Đồng bộ cập nhật trạng thái ĐÃ PHẢN HỒI sang Google Sheet Trung tâm
+        // Đồng bộ cập nhật trạng thái ĐÃ PHẢN HỒI sang Google Sheet Trung tâm (2 chiều UPSERT)
         const integrations = db.settings?.integrations || {};
         db.helpRequests[idx].googleSheetSync = await syncRequestToGoogleSheet(
           db.helpRequests[idx],
           integrations,
-          db.helpRequests[idx].googleSheetSync?.rowNumber - 1 || idx + 1
+          (db.helpRequests[idx].googleSheetSync?.rowNumber || idx + 2) - 1,
+          { isNew: false }
         );
 
         writeDb(db);
@@ -631,7 +709,7 @@ function createAppHandler(options = {}) {
           });
         }
 
-        const db = readDb();
+        const db = await hydrateFromGoogleSheetIfNeeded(readDb());
         let list = db.helpRequests || [];
         if (adminSession && Array.isArray(adminSession.allowedChannels)) {
           list = list.filter(r =>
@@ -694,6 +772,10 @@ function createAppHandler(options = {}) {
           },
           googleSheetWebhookUrl: security.sanitizeInput(
             body.googleSheetWebhookUrl !== undefined ? body.googleSheetWebhookUrl : prev.googleSheetWebhookUrl || '',
+            300
+          ),
+          alertEmails: security.sanitizeInput(
+            body.alertEmails !== undefined ? body.alertEmails : prev.alertEmails || '',
             300
           ),
           googleSheetPublicUrl: security.sanitizeInput(

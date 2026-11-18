@@ -57,7 +57,8 @@ Sau khi Ban Giám hiệu thống nhất đưa vào sử dụng chính thức, th
 | `ZALO_PSYCH_LINK` | *(SĐT Zalo GV Tâm lý)* | Lưu cố định Zalo Luồng 1 & tự tạo QR |
 | `ZALO_GVCN_LINK` | *(SĐT Zalo GVCN)* | Lưu cố định Zalo Luồng 2 & tự tạo QR |
 | `ZALO_BGH_LINK` | *(Link Group `https://zalo.me/g/...`)* | Lưu cố định Group Zalo Luồng 3 & tự tạo QR |
-| `GOOGLE_SHEET_WEBHOOK_URL` | *(Link Web App ở Bước 1)* | Tự động đẩy 100% hồ sơ & phản hồi vào Google Sheet |
+| `GOOGLE_SHEET_WEBHOOK_URL` | *(Link Web App ở Bước 1)* | **Lưu trữ bền vững 2 chiều** (tự đọc ngược lại mã `NA-XXXX` khi Vercel khởi động lại) |
+| `ALERT_EMAILS` | *(VD: `hieutruong@truong.edu.vn, tamly@truong.edu.vn`)* | **Tự động gửi Email cảnh báo khẩn Bước 3B** (kèm tham mưu AI) ngay trong 5 giây khi có ca nguy cơ cao/khẩn cấp |
 | `GEMINI_API_KEY` | *(Tùy chọn)* | Kết nối mở rộng Gemini API (bỏ trống hệ thống vẫn chạy 100% AI Nội tại) |
 
 Sau khi lưu các biến trên, vào tab **Deployments** ➔ bấm dấu **`...`** ở bản mới nhất ➔ chọn **Redeploy**. Từ lúc này, toàn bộ dữ liệu mẫu biến mất và hệ thống chạy hoàn toàn bằng dữ liệu thật của nhà trường!
@@ -81,6 +82,6 @@ Sau khi lưu các biến trên, vào tab **Deployments** ➔ bấm dấu **`...`
    - **Security Headers chuẩn:** `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`, `Referrer-Policy: no-referrer`, `Permissions-Policy`, `Cache-Control: no-store` cho dữ liệu nhạy cảm.
    - **Chế độ Ngụy trang Nhanh (`ESC x2`):** Bảo vệ học sinh khi có người đi ngang qua màn hình.
 
-### 2. Hai lưu ý thực tế khi chạy trên gói miễn phí Vercel (Minh bạch cho Nhà trường)
-- **Lưu ý 1 – Rate Limit theo bộ nhớ tiến trình:** Trên gói Serverless miễn phí của Vercel, bộ đếm chống spam chạy trong RAM của từng instance (không dùng Redis ngoài). Với lưu lượng 1 trường THCS (~500–2.000 học sinh), cơ chế này hoạt động hiệu quả và không tốn chi phí; nếu triển khai cấp Sở/Quận nhiều vạn học sinh thì nên bổ sung thêm **Cloudflare Turnstile / Upstash Redis**.
-- **Lưu ý 2 – Lưu trữ dài hạn:** Khi máy chủ Serverless của Vercel ngủ đông sau một thời gian không có truy cập, dữ liệu lưu tạm trên máy chủ sẽ tự làm mới. Do đó nhà trường **bắt buộc kết nối Google Sheet ở Giai đoạn 2** để lưu giữ 100% lịch sử báo cáo, và cài đặt quyền chia sẻ file Google Sheet ở chế độ **Hạn chế (Restricted)** chỉ cấp cho Ban Giám hiệu và Giáo viên Tư vấn Tâm lý.
+### 2. Lưu ý thực tế khi chạy trên gói miễn phí Vercel (Minh bạch cho Nhà trường)
+- **Lưu trữ bền vững 2 chiều & Email Cảnh báo Khẩn (Apps Script v2):** Hệ thống đã nâng cấp đồng bộ **2 chiều** qua Google Apps Script v2 (tự UPSERT không trùng dòng, tự đọc ngược lại hồ sơ và mã `NA-XXXX` khi Vercel khởi động lại, đồng thời **tự động gửi Email cảnh báo khẩn Bước 3B** kèm tham mưu AI tới Ban Giám hiệu & GV Tâm lý ngay khi có ca `HIGH`/`CRITICAL`). Nhà trường chỉ cần điền `GOOGLE_SHEET_WEBHOOK_URL` + `ALERT_EMAILS` ở Giai đoạn 2 và cài quyền file Google Sheet ở chế độ **Hạn chế (Restricted)**.
+- **Rate Limit theo bộ nhớ tiến trình:** Trên gói Serverless miễn phí của Vercel, bộ đếm chống spam chạy trong RAM của từng instance (không dùng Redis ngoài). Với lưu lượng 1 trường THCS (~500–2.000 học sinh), cơ chế này hoạt động hiệu quả và không tốn chi phí; nếu triển khai cấp Sở/Quận nhiều vạn học sinh thì nên bổ sung thêm **Cloudflare Turnstile / Upstash Redis**.

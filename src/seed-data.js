@@ -429,6 +429,7 @@ const INITIAL_DB = {
       },
       googleSheetWebhookUrl: process.env.GOOGLE_SHEET_WEBHOOK_URL || '',
       googleSheetPublicUrl: process.env.GOOGLE_SHEET_PUBLIC_URL || '',
+      alertEmails: process.env.ALERT_EMAILS || '',
       googleSheetName: 'Quản Lý Hộp Thư Báo Cáo Bắt Nạt THCS (Trung Tâm)'
     }
   },

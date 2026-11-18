@@ -750,32 +750,115 @@
                   <input type="text" id="quick-zalo-bgh" placeholder="VD: https://zalo.me/g/bghnangam2026" />
                 </div>
                 <div class="form-group">
-                  <label for="wh-google-sheet">📊 Google Apps Script Web App URL (Tự động ghi vào Google Sheet):</label>
+                  <label for="wh-google-sheet">📊 Google Apps Script Web App URL (Lưu trữ 2 chiều + Cảnh báo Email):</label>
                   <input type="url" id="wh-google-sheet" placeholder="https://script.google.com/macros/s/.../exec" />
                 </div>
+              </div>
+              <div class="form-group">
+                <label for="wh-alert-emails">🚨 Email nhận Cảnh báo Khẩn cấp Bước 3B tức thì (BGH &amp; GV Tâm lý, cách nhau dấu phẩy):</label>
+                <input type="text" id="wh-alert-emails" placeholder="VD: hieutruong@truong.edu.vn, tamly@truong.edu.vn" />
               </div>
 
               <details style="margin-top:0.35rem; background:#FFFDF7; padding:0.65rem; border-radius:8px; border:1px solid #F2E8CF;">
                 <summary style="cursor:pointer; font-weight:700; font-size:0.86rem; color:#0284C7;">
-                  📋 Bấm xem Mã Google Apps Script (Copy-Paste 30 giây để kết nối Google Sheet tự động 100%) & Webhook nâng cao
+                  📋 Bấm xem Mã Google Apps Script v2 (Lưu trữ Bền vững 2 Chiều + Tự động gửi Email Cảnh báo Khẩn Bước 3B)
                 </summary>
                 <div style="margin-top:0.6rem;">
                   <p class="small-note">
-                    <strong>Hướng dẫn 3 bước cho thầy cô:</strong> Mở 1 file Google Sheet mới ➔ Chọn <strong>Tiện ích mở rộng (Extensions) &gt; Apps Script</strong> ➔ Dán đoạn mã dưới đây vào rồi bấm <strong>Triển khai (Deploy) &gt; Ứng dụng Web (Anyone)</strong> và dán link vào ô bên trên:
+                    <strong>Hướng dẫn 3 bước cho thầy cô:</strong> Mở 1 file Google Sheet mới ➔ Chọn <strong>Tiện ích mở rộng (Extensions) &gt; Apps Script</strong> ➔ Bấm nút Copy bên dưới dán vào (thay email BGH ở dòng 1 nếu muốn cố định) ➔ Bấm <strong>Triển khai (Deploy) &gt; Ứng dụng Web (Anyone)</strong> rồi dán link vào ô bên trên:
                   </p>
                   <div style="display:flex; gap:0.5rem; align-items:center; margin:0.45rem 0;">
-                    <button type="button" id="btn-copy-apps-script" class="btn-secondary-sm">📋 Copy Mã Google Apps Script Chuẩn</button>
+                    <button type="button" id="btn-copy-apps-script" class="btn-secondary-sm">📋 Copy Mã Apps Script v2 (2 Chiều + Email Khẩn)</button>
                     <span id="copy-script-feedback" class="small-note" style="color:#059669; font-weight:700;"></span>
                   </div>
-                  <pre id="apps-script-code-block" style="background:#0F293A; color:#F8FAFC; padding:0.65rem; border-radius:8px; font-size:0.75rem; overflow-x:auto;">function doPost(e) {
+                  <pre id="apps-script-code-block" style="background:#0F293A; color:#F8FAFC; padding:0.65rem; border-radius:8px; font-size:0.75rem; overflow-x:auto;">// BẠN ĐỒNG HÀNH AI v2 — LƯU TRỮ BỀN VỮNG 2 CHIỀU + EMAIL CẢNH BÁO KHẨN BƯỚC 3B
+var DEFAULT_ALERT_EMAILS = ""; // VD: "hieutruong@truong.edu.vn, tamly@truong.edu.vn"
+
+function getSheet_() {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  var data = JSON.parse(e.postData.contents);
-  var r = data.row || {};
   if (sheet.getLastRow() === 0) {
-    sheet.appendRow(["Mã Hồ Sơ", "Thời Gian", "Khối Lớp", "Chế Độ", "Học Sinh/Biệt Danh", "Phân Loại", "Mức Độ", "Luồng Zalo", "Địa Điểm", "Nội Dung", "Trạng Thái", "Phản Hồi GV"]);
+    sheet.appendRow(["Mã Hồ Sơ", "Thời Gian", "Khối Lớp", "Chế Độ", "Học Sinh/Biệt Danh", "Phân Loại", "Mức Độ", "Luồng Zalo", "Địa Điểm", "Bằng Chứng / Liên Hệ", "Nội Dung", "Trạng Thái", "Phản Hồi GV", "Người Phản Hồi", "JSON_SYNC"]);
   }
-  sheet.appendRow([r.trackingCode, r.createdAt, r.grade, r.identityMode, r.studentDisplay, r.categoryLabel, r.urgency, r.zaloChannels, r.locationAndTime, r.description, r.status, r.counselorReply]);
-  return ContentService.createTextOutput(JSON.stringify({ ok: true })).setMimeType(ContentService.MimeType.JSON);
+  return sheet;
+}
+
+function doPost(e) {
+  var sheet = getSheet_();
+  var data = JSON.parse(e.postData.contents || "{}");
+  var r = data.row || {};
+  var rawJson = JSON.stringify(data.rawRecord || {});
+  var rowVals = [r.trackingCode || "", r.createdAt || "", r.grade || "", r.identityMode || "", r.studentDisplay || "", r.categoryLabel || "", r.urgency || "", r.zaloChannels || "", r.locationAndTime || "", r.evidenceAndContact || "", r.description || "", r.status || "", r.counselorReply || "", r.repliedBy || "", rawJson];
+
+  // UPSERT theo Mã Hồ Sơ (Cột A) để không tạo dòng trùng khi GV phản hồi hoặc HS nhắn nối tiếp
+  var lastRow = sheet.getLastRow();
+  var targetRow = -1;
+  if (lastRow &gt; 1 &amp;&amp; r.trackingCode) {
+    var codes = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
+    for (var i = 0; i &lt; codes.length; i++) {
+      if (String(codes[i][0]).toUpperCase() === String(r.trackingCode).toUpperCase()) {
+        targetRow = i + 2;
+        break;
+      }
+    }
+  }
+  if (targetRow &gt; 0) {
+    sheet.getRange(targetRow, 1, 1, rowVals.length).setValues([rowVals]);
+  } else {
+    sheet.appendRow(rowVals);
+    targetRow = sheet.getLastRow();
+  }
+
+  // TỰ ĐỘNG GỬI EMAIL CẢNH BÁO KHẨN TỨC THÌ (BƯỚC 3B: HIGH / CRITICAL)
+  var emailSent = false;
+  var recipients = (data.alertEmails || DEFAULT_ALERT_EMAILS || "").trim();
+  var urg = String(r.urgency || "").toUpperCase();
+  if (data.isNew &amp;&amp; recipients &amp;&amp; (urg === "HIGH" || urg === "CRITICAL")) {
+    var subject = "🚨 [KHẨN CẤP BƯỚC 3B] Hồ sơ " + r.trackingCode + " - " + (r.categoryLabel || "Cảnh báo an toàn học sinh");
+    var body = "HỆ THỐNG BẠN ĐỒNG HÀNH AI PHÁT HIỆN CA NGUY CƠ CAO CẦN CAN THIỆP NGAY:\n\n"
+      + "• Mã hồ sơ: " + r.trackingCode + "\n"
+      + "• Học sinh: " + r.studentDisplay + " (" + r.grade + " - " + r.identityMode + ")\n"
+      + "• Phân loại: " + r.categoryLabel + " | Mức độ: " + urg + "\n"
+      + "• Luồng Zalo định tuyến: " + r.zaloChannels + "\n"
+      + "• Địa điểm/Thời gian: " + r.locationAndTime + "\n"
+      + "• Bằng chứng/Liên hệ: " + (r.evidenceAndContact || "Không có") + "\n"
+      + "• Nội dung học sinh phản ánh:\n\"" + r.description + "\"\n\n"
+      + "----------------------------------------\n"
+      + "🧠 THAM MƯU XỬ LÝ TỪ TRỢ LÝ AI:\n" + (data.aiCoPilotSummary || "Ưu tiên bảo vệ an toàn học sinh ngay lập tức, không gọi đối chất trực tiếp.");
+    MailApp.sendEmail(recipients, subject, body);
+    emailSent = true;
+  }
+
+  return ContentService.createTextOutput(JSON.stringify({ ok: true, rowNumber: targetRow, emailSent: emailSent })).setMimeType(ContentService.MimeType.JSON);
+}
+
+// ĐỌC NGƯỢC 2 CHIỀU (LIST / LOOKUP) ĐỂ KHÔNG BAO GIỜ MẤT MÃ TRA CỨU NA-XXXX KHI VERCEL NGỦ ĐÔNG
+function doGet(e) {
+  var sheet = getSheet_();
+  var action = (e &amp;&amp; e.parameter &amp;&amp; e.parameter.action) ? String(e.parameter.action).toUpperCase() : "LIST";
+  var code = (e &amp;&amp; e.parameter &amp;&amp; e.parameter.code) ? String(e.parameter.code).toUpperCase() : "";
+  var lastRow = sheet.getLastRow();
+  var results = [];
+  if (lastRow &gt; 1) {
+    var rows = sheet.getRange(2, 1, lastRow - 1, 15).getValues();
+    for (var i = rows.length - 1; i &gt;= 0; i--) {
+      var jsonStr = rows[i][14];
+      if (!jsonStr) continue;
+      try {
+        var obj = JSON.parse(jsonStr);
+        if (action === "LOOKUP") {
+          if (String(obj.trackingCode || "").toUpperCase() === code) {
+            return ContentService.createTextOutput(JSON.stringify({ ok: true, request: obj })).setMimeType(ContentService.MimeType.JSON);
+          }
+        } else {
+          results.push(obj);
+        }
+      } catch (_err) {}
+    }
+  }
+  if (action === "LOOKUP") {
+    return ContentService.createTextOutput(JSON.stringify({ ok: false, error: "Not found" })).setMimeType(ContentService.MimeType.JSON);
+  }
+  return ContentService.createTextOutput(JSON.stringify({ ok: true, requests: results })).setMimeType(ContentService.MimeType.JSON);
 }</pre>
                   <div class="form-row-2" style="margin-top:0.65rem;">
                     <div class="form-group">

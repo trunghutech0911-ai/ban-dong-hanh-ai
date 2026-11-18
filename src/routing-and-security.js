@@ -210,9 +210,19 @@ async function dispatchToZaloStreams(requestItem, integrationConfig = {}) {
 }
 
 /**
- * ĐỒNG BỘ DỮ LIỆU VỀ GOOGLE SHEET TRUNG TÂM CỦA NHÀ TRƯỜNG
+ * ĐỒNG BỘ DỮ LIỆU 2 CHIỀU VỀ GOOGLE SHEET TRUNG TÂM & KÍCH HOẠT EMAIL CẢNH BÁO KHẨN BƯỚC 3B
  */
-async function syncRequestToGoogleSheet(requestItem, integrationConfig = {}, totalRowsCount = 1) {
+async function syncRequestToGoogleSheet(
+  requestItem,
+  integrationConfig = {},
+  totalRowsCount = 1,
+  syncOptions = {}
+) {
+  const evidenceParts = [
+    requestItem.evidenceNote ? `Bằng chứng: ${requestItem.evidenceNote}` : '',
+    requestItem.contactMethod ? `Liên hệ: ${requestItem.contactMethod}` : ''
+  ].filter(Boolean);
+
   const sheetRow = {
     rowNumber: totalRowsCount + 1, // Hàng 1 là tiêu đề cột
     trackingCode: requestItem.trackingCode,
@@ -226,6 +236,7 @@ async function syncRequestToGoogleSheet(requestItem, integrationConfig = {}, tot
     urgency: String(requestItem.urgency || 'medium').toUpperCase(),
     zaloChannels: (requestItem.zaloDispatch?.routedChannelNames || [requestItem.recipient]).join(' | '),
     locationAndTime: requestItem.locationAndTime,
+    evidenceAndContact: evidenceParts.join(' | '),
     description: requestItem.description,
     status: requestItem.status === 'replied' ? 'ĐÃ PHẢN HỒI' : 'CHỜ XỬ LÝ',
     counselorReply: requestItem.counselorReply || '',
@@ -233,7 +244,23 @@ async function syncRequestToGoogleSheet(requestItem, integrationConfig = {}, tot
     repliedAt: requestItem.repliedAt || ''
   };
 
+  // Bản ghi chuẩn hóa không chứa privacyHash để lưu cột JSON_SYNC phục vụ đọc ngược 2 chiều
+  const { privacyHash, aiCoPilotBriefing, ...portableRecord } = requestItem;
+  const aiCoPilotSummary = aiCoPilotBriefing
+    ? [
+        aiCoPilotBriefing.situationTitle,
+        `Căn cứ pháp lý: ${aiCoPilotBriefing.legalBasis}`,
+        ...(aiCoPilotBriefing.tacticalSteps || [])
+      ].join('\n')
+    : '';
+
+  const alertEmails =
+    integrationConfig?.alertEmails ||
+    process.env.ALERT_EMAILS ||
+    '';
+
   let syncStatus = 'synced_local_and_ready';
+  let emailAlertTriggered = false;
   const sheetWebhookUrl =
     integrationConfig?.googleSheetWebhookUrl ||
     process.env.GOOGLE_SHEET_WEBHOOK_URL ||
@@ -244,24 +271,100 @@ async function syncRequestToGoogleSheet(requestItem, integrationConfig = {}, tot
       const resp = await fetch(sheetWebhookUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        signal: AbortSignal.timeout(5000),
         body: JSON.stringify({
           action: 'UPSERT_ROW',
-          row: sheetRow
+          isNew: Boolean(syncOptions.isNew),
+          alertEmails,
+          aiCoPilotSummary,
+          row: sheetRow,
+          rawRecord: portableRecord
         })
       });
-      syncStatus = resp.ok ? 'synced_cloud_webhook' : `cloud_http_${resp.status}`;
+      if (resp.ok) {
+        syncStatus = 'synced_cloud_2way';
+        try {
+          const data = await resp.json();
+          if (data?.rowNumber) sheetRow.rowNumber = data.rowNumber;
+          emailAlertTriggered = Boolean(data?.emailSent);
+        } catch (_parseErr) {
+          // Bỏ qua nếu Apps Script trả về text
+        }
+      } else {
+        syncStatus = `cloud_http_${resp.status}`;
+      }
     } catch (_e) {
       syncStatus = 'queued_local_mirror';
     }
   }
 
   return {
-    sheetName: 'Quản Lý Hộp Thư Cầu Viện THCS ( Trung Tâm )',
+    sheetName: 'Quản Lý Hộp Thư Báo Cáo Bắt Nạt THCS (Trung Tâm)',
     rowNumber: sheetRow.rowNumber,
     syncStatus,
+    emailAlertTriggered,
     syncedAt: new Date().toISOString(),
     columns: sheetRow
   };
+}
+
+/**
+ * ĐỌC NGƯỢC DANH SÁCH HỒ SƠ TỪ GOOGLE SHEET (LƯU TRỮ BỀN VỮNG 2 CHIỀU KHI VERCEL KHỞI ĐỘNG LẠI)
+ */
+async function fetchRequestsFromGoogleSheet(integrationConfig = {}) {
+  const sheetWebhookUrl =
+    integrationConfig?.googleSheetWebhookUrl ||
+    process.env.GOOGLE_SHEET_WEBHOOK_URL ||
+    '';
+  if (!sheetWebhookUrl || !sheetWebhookUrl.startsWith('http')) {
+    return null;
+  }
+
+  try {
+    const sep = sheetWebhookUrl.includes('?') ? '&' : '?';
+    const resp = await fetch(`${sheetWebhookUrl}${sep}action=LIST`, {
+      method: 'GET',
+      signal: AbortSignal.timeout(4500)
+    });
+    if (!resp.ok) return null;
+    const data = await resp.json();
+    if (data && data.ok && Array.isArray(data.requests)) {
+      return data.requests;
+    }
+  } catch (_err) {
+    // Fallback êm mượt về bộ nhớ cục bộ nếu Google Sheet tạm chậm
+  }
+  return null;
+}
+
+/**
+ * TRA CỨU TRỰC TIẾP 1 MÃ HỒ SƠ (NA-XXXX) TỪ GOOGLE SHEET (2 CHIỀU)
+ */
+async function lookupRequestFromGoogleSheet(trackingCode = '', integrationConfig = {}) {
+  const sheetWebhookUrl =
+    integrationConfig?.googleSheetWebhookUrl ||
+    process.env.GOOGLE_SHEET_WEBHOOK_URL ||
+    '';
+  if (!sheetWebhookUrl || !sheetWebhookUrl.startsWith('http') || !trackingCode) {
+    return null;
+  }
+
+  try {
+    const sep = sheetWebhookUrl.includes('?') ? '&' : '?';
+    const url = `${sheetWebhookUrl}${sep}action=LOOKUP&code=${encodeURIComponent(trackingCode)}`;
+    const resp = await fetch(url, {
+      method: 'GET',
+      signal: AbortSignal.timeout(4500)
+    });
+    if (!resp.ok) return null;
+    const data = await resp.json();
+    if (data && data.ok && data.request && data.request.trackingCode) {
+      return data.request;
+    }
+  } catch (_err) {
+    // Fallback về cục bộ
+  }
+  return null;
 }
 
 /**
@@ -514,6 +617,8 @@ module.exports = {
   determineZaloRouting,
   dispatchToZaloStreams,
   syncRequestToGoogleSheet,
+  fetchRequestsFromGoogleSheet,
+  lookupRequestFromGoogleSheet,
   generateGoogleSheetCsv,
   SecurityGuard
 };

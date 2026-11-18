@@ -1083,6 +1083,7 @@ async function loadCounselorRequests() {
       const whGvcn = document.getElementById('wh-zalo-gvcn');
       const whBgh = document.getElementById('wh-zalo-bgh');
       const whSheet = document.getElementById('wh-google-sheet');
+      const whAlertEmails = document.getElementById('wh-alert-emails');
 
       if (qPsych) qPsych.value = data.integrations.zaloQuickLinks?.zalo_psych || '0901234567';
       if (qGvcn) qGvcn.value = data.integrations.zaloQuickLinks?.zalo_gvcn || '0902345678';
@@ -1091,6 +1092,7 @@ async function loadCounselorRequests() {
       if (whGvcn) whGvcn.value = data.integrations.zaloWebhooks?.zalo_gvcn || '';
       if (whBgh) whBgh.value = data.integrations.zaloWebhooks?.zalo_bgh || '';
       if (whSheet) whSheet.value = data.integrations.googleSheetWebhookUrl || '';
+      if (whAlertEmails) whAlertEmails.value = data.integrations.alertEmails || '';
 
       renderZaloQrConnectBoxes(data.integrations);
     }
@@ -1575,7 +1577,8 @@ function bindGlobalEvents() {
           zalo_psych: document.getElementById('wh-zalo-psych')?.value || '',
           zalo_gvcn: document.getElementById('wh-zalo-gvcn')?.value || '',
           zalo_bgh: document.getElementById('wh-zalo-bgh')?.value || '',
-          googleSheetWebhookUrl: document.getElementById('wh-google-sheet')?.value || ''
+          googleSheetWebhookUrl: document.getElementById('wh-google-sheet')?.value || '',
+          alertEmails: document.getElementById('wh-alert-emails')?.value || ''
         })
       });
       const data = await res.json();

@@ -200,7 +200,108 @@ async function runTests() {
       prodServer.close();
     }
 
-    console.log('\n🎉 TẤT CẢ 8 BỘ KIỂM THỬ KIẾN TRÚC ĐỊNH TUYẾN & BẢO MẬT ĐỀU THÀNH CÔNG XUẤT SẮC!');
+    // 9. Kiểm tra Đồng bộ 2 chiều Google Sheet (UPSERT + Đọc ngược sau Cold Start) & Email Cảnh báo Khẩn Bước 3B
+    const http = require('http');
+    const mockSheetRows = new Map();
+    const mockEmailsSent = [];
+    const mockSheetServer = http.createServer((req, res) => {
+      const u = new URL(req.url, 'http://localhost');
+      if (req.method === 'POST') {
+        let raw = '';
+        req.on('data', c => (raw += c));
+        req.on('end', () => {
+          const body = JSON.parse(raw || '{}');
+          const rec = body.rawRecord || {};
+          if (rec.trackingCode) {
+            mockSheetRows.set(rec.trackingCode.toUpperCase(), rec);
+          }
+          let emailSent = false;
+          if (body.isNew && body.alertEmails && ['HIGH', 'CRITICAL'].includes(String(body.row?.urgency).toUpperCase())) {
+            mockEmailsSent.push({
+              to: body.alertEmails,
+              code: rec.trackingCode,
+              summary: body.aiCoPilotSummary
+            });
+            emailSent = true;
+          }
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ ok: true, rowNumber: mockSheetRows.size + 1, emailSent }));
+        });
+        return;
+      }
+      if (req.method === 'GET') {
+        const action = (u.searchParams.get('action') || 'LIST').toUpperCase();
+        const code = (u.searchParams.get('code') || '').toUpperCase();
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        if (action === 'LOOKUP') {
+          const item = mockSheetRows.get(code);
+          return res.end(JSON.stringify(item ? { ok: true, request: item } : { ok: false }));
+        }
+        return res.end(JSON.stringify({ ok: true, requests: Array.from(mockSheetRows.values()) }));
+      }
+    });
+
+    await new Promise(resolve => mockSheetServer.listen(0, resolve));
+    const mockSheetUrl = `http://127.0.0.1:${mockSheetServer.address().port}`;
+    try {
+      // Cấu hình webhook mock + email cảnh báo khẩn
+      const saveCfgRes = await fetch(`${baseUrl}/api/counselor/integrations`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          googleSheetWebhookUrl: mockSheetUrl,
+          alertEmails: 'hieutruong@thcs.edu.vn, tamly@thcs.edu.vn'
+        })
+      });
+      assert.strictEqual(saveCfgRes.status, 200);
+
+      // Gửi 1 ca KHẨN CẤP (Bước 3B) -> phải ghi vào Google Sheet VÀ kích hoạt Email cảnh báo khẩn
+      const urgentRes = await fetch(`${baseUrl}/api/help-requests`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          isAnonymous: true,
+          nickname: 'Hải Âu Khẩn Cấp',
+          grade: '8',
+          category: 'physical_bullying',
+          urgency: 'critical',
+          description: 'Đang bị nhóm bạn chặn ở cổng sau trường dọa đánh ngay bây giờ!'
+        })
+      });
+      assert.strictEqual(urgentRes.status, 201);
+      const urgentData = await urgentRes.json();
+      assert.strictEqual(urgentData.googleSheetSync.syncStatus, 'synced_cloud_2way');
+      assert.strictEqual(urgentData.googleSheetSync.emailAlertTriggered, true);
+      assert.strictEqual(mockEmailsSent.length, 1);
+      assert.ok(mockEmailsSent[0].to.includes('hieutruong@thcs.edu.vn'));
+      assert.ok(mockEmailsSent[0].summary.length > 20, 'Email cảnh báo phải kèm tham mưu AI');
+
+      // Giả lập Vercel Cold Start (xóa hồ sơ khỏi db.json cục bộ) -> Tra cứu mã NA-XXXX phải đọc ngược 2 chiều từ Google Sheet!
+      const rawDb = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
+      rawDb.helpRequests = rawDb.helpRequests.filter(r => r.trackingCode !== urgentData.trackingCode);
+      fs.writeFileSync(dbPath, JSON.stringify(rawDb, null, 2), 'utf8');
+      // Tạo server mới (cold start hoàn toàn mới, không có trong inMemoryDbFallback)
+      const prevEnvSheet = process.env.GOOGLE_SHEET_WEBHOOK_URL;
+      process.env.GOOGLE_SHEET_WEBHOOK_URL = mockSheetUrl;
+      const coldServer = createAppServer({ demoMode: true });
+      await new Promise(resolve => coldServer.listen(0, resolve));
+      try {
+        const coldLookup = await fetch(
+          `http://localhost:${coldServer.address().port}/api/help-requests/lookup?code=${encodeURIComponent(urgentData.trackingCode)}`
+        );
+        assert.strictEqual(coldLookup.status, 200, 'Phải đọc ngược được mã NA-XXXX từ Google Sheet sau khi Vercel khởi động lại');
+        const coldData = await coldLookup.json();
+        assert.strictEqual(coldData.request.trackingCode, urgentData.trackingCode);
+        console.log('✅ Test 9: Lưu trữ bền vững 2 chiều Google Sheet (UPSERT + Khôi phục sau Cold Start) & Email Cảnh báo Khẩn Bước 3B hoạt động hoàn hảo!');
+      } finally {
+        process.env.GOOGLE_SHEET_WEBHOOK_URL = prevEnvSheet || '';
+        coldServer.close();
+      }
+    } finally {
+      mockSheetServer.close();
+    }
+
+    console.log('\n🎉 TẤT CẢ 9 BỘ KIỂM THỬ KIẾN TRÚC ĐỊNH TUYẾN, BẢO MẬT & LƯU TRỮ 2 CHIỀU ĐỀU THÀNH CÔNG XUẤT SẮC!');
   } finally {
     server.close();
   }
