@@ -10,49 +10,76 @@
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
-  <!-- CHẾ ĐỘ NGỤY TRANG AN TOÀN (QUICK EXIT CAMOUFLAGE MODE) -->
+  <!-- CHẾ ĐỘ NGỤY TRANG AN TOÀN — CỔNG ÔN TẬP KIẾN THỨC NỀN TẢNG THCS (LỚP 6 – 9 • GDPT 2018) -->
   <div id="camouflage-screen" class="camouflage-screen hidden" aria-hidden="true">
-    <div class="camouflage-container">
-      <div class="camouflage-header">
-        <div>
-          <span class="camouflage-badge">Tài liệu Ôn tập THCS</span>
-          <h1>Sổ Tay Công Thức Toán & Ngữ Pháp Tiếng Anh Trọng Tâm (Lớp 6 – Lớp 9)</h1>
+    <div class="study-top-nav">
+      <div class="camouflage-container study-nav-inner">
+        <div class="study-brand">
+          <div class="study-brand-icon" aria-hidden="true">📚</div>
+          <div>
+            <div class="study-brand-row">
+              <span class="study-brand-title">Sổ Tay Kiến Thức Nền Tảng THCS</span>
+              <span class="camouflage-badge">GDPT 2018 • Lớp 6 – 9</span>
+            </div>
+            <p class="study-brand-sub">Tổng hợp công thức chuẩn, kỹ năng làm bài &amp; trắc nghiệm nhanh 4 môn trọng tâm</p>
+          </div>
         </div>
-        <button id="btn-exit-camouflage" class="btn-restore-app" type="button">
-          🌻 Quay lại Trạm Nắng Ấm
+        <button id="btn-exit-camouflage" class="btn-restore-app" type="button" title="Đóng cửa sổ tài liệu học tập và trở về màn hình trước">
+          ↩ Quay lại
         </button>
       </div>
-      <div class="camouflage-grid">
-        <div class="camouflage-card">
-          <h2>📐 1. Công Thức Đại Số & Hình Học Cơ Bản</h2>
-          <ul>
-            <li><strong>Lớp 6 – Tập hợp & Số nguyên:</strong> Quy tắc dấu ngoặc: Khi bỏ dấu ngoặc có dấu "-" đằng trước, ta phải đổi dấu tất cả các số hạng trong ngoặc.</li>
-            <li><strong>Lớp 7 – Tỉ lệ thức:</strong> Nếu <code>a/b = c/d</code> thì <code>a.d = b.c</code>. Tính chất dãy tỉ số bằng nhau: <code>a/b = c/d = (a+c)/(b+d)</code>.</li>
-            <li><strong>Lớp 8 – 7 Hằng đẳng thức đáng nhớ:</strong>
-              <ul>
-                <li>Bình phương của một tổng: <code>(A + B)² = A² + 2AB + B²</code></li>
-                <li>Bình phương của một hiệu: <code>(A - B)² = A² - 2AB + B²</code></li>
-                <li>Hiệu hai bình phương: <code>A² - B² = (A - B)(A + B)</code></li>
-              </ul>
-            </li>
-            <li><strong>Lớp 9 – Hệ thức lượng trong tam giác vuông:</strong> <code>b² = a.b'</code>, <code>h² = b'.c'</code>, Định lý Pytago: <code>a² = b² + c²</code>.</li>
-          </ul>
+    </div>
+
+    <div class="camouflage-container study-main-wrap">
+      <!-- Thanh lọc theo Khối lớp, Môn học & Ô tìm kiếm trực quan -->
+      <section class="study-toolbar" aria-label="Bộ lọc kiến thức THCS">
+        <div class="study-filter-row">
+          <div class="study-pill-group" role="group" aria-label="Lọc theo khối lớp">
+            <button type="button" class="study-grade-pill active" data-study-grade="all">Tất cả (6–9)</button>
+            <button type="button" class="study-grade-pill" data-study-grade="6">Lớp 6</button>
+            <button type="button" class="study-grade-pill" data-study-grade="7">Lớp 7</button>
+            <button type="button" class="study-grade-pill" data-study-grade="8">Lớp 8</button>
+            <button type="button" class="study-grade-pill" data-study-grade="9">Lớp 9 (Ôn thi 10)</button>
+          </div>
+          <div class="study-search-box">
+            <span aria-hidden="true">🔍</span>
+            <input type="search" id="study-search-input" placeholder="Tìm công thức, định lý (VD: Pytago, hằng đẳng thức, Ohm, Wish, ẩn dụ)..." aria-label="Tìm kiếm kiến thức THCS" />
+          </div>
         </div>
-        <div class="camouflage-card">
-          <h2>📘 2. Ngữ Pháp Tiếng Anh THCS (Grades 6 - 9)</h2>
-          <ul>
-            <li><strong>Present Simple (Hiện tại đơn):</strong> <code>S + V(s/es) + O</code> — Diễn tả thói quen hàng ngày hoặc sự thật hiển nhiên.</li>
-            <li><strong>Present Continuous (Hiện tại tiếp diễn):</strong> <code>S + am/is/are + V-ing</code> — Diễn tả hành động đang xảy ra tại thời điểm nói.</li>
-            <li><strong>Past Simple (Quá khứ đơn):</strong> <code>S + V2/V-ed + O</code> — Hành động đã hoàn tất trong quá khứ.</li>
-            <li><strong>Conditional Sentences (Câu điều kiện):</strong>
-              <ul>
-                <li>Loại 1: <code>If + S + V(htđ), S + will/can + V-inf</code></li>
-                <li>Loại 2: <code>If + S + V(qkđ), S + would/could + V-inf</code></li>
-              </ul>
-            </li>
-          </ul>
+
+        <div class="study-subject-row">
+          <div class="study-pill-group" role="group" aria-label="Lọc theo môn học">
+            <button type="button" class="study-subject-pill active" data-study-subject="all">✨ Tất cả 4 môn</button>
+            <button type="button" class="study-subject-pill" data-study-subject="math">📐 Toán học</button>
+            <button type="button" class="study-subject-pill" data-study-subject="english">📘 Tiếng Anh</button>
+            <button type="button" class="study-subject-pill" data-study-subject="literature">📖 Ngữ văn</button>
+            <button type="button" class="study-subject-pill" data-study-subject="science">🔬 KHTN (Lý–Hóa–Sinh)</button>
+          </div>
+          <span id="study-cards-count" class="study-count-label">Hiển thị 16/16 chuyên đề nền tảng</span>
         </div>
-      </div>
+      </section>
+
+      <!-- Khung Trắc Nghiệm Nhanh Sinh Động (Flash Quiz) -->
+      <section class="study-quiz-banner" aria-label="Luyện nhanh trắc nghiệm kiến thức nền tảng">
+        <div class="study-quiz-header">
+          <div>
+            <span class="study-quiz-badge">⚡ Luyện nhanh kiến thức trọng tâm</span>
+            <span id="study-quiz-meta" class="study-quiz-meta">Lớp 8 • Toán học • Câu 1/10</span>
+          </div>
+          <button type="button" id="btn-study-next-quiz" class="study-quiz-next-btn">Câu tiếp theo ➔</button>
+        </div>
+        <p id="study-quiz-question" class="study-quiz-question"></p>
+        <div id="study-quiz-options" class="study-quiz-options"></div>
+        <div id="study-quiz-feedback" class="study-quiz-feedback hidden" aria-live="polite"></div>
+      </section>
+
+      <!-- Lưới 16 Chuyên đề Kiến thức Nền tảng (4 Khối × 4 Môn) -->
+      <section id="study-cards-grid" class="camouflage-grid" aria-live="polite"></section>
+
+      <footer class="study-footer-note">
+        <span>📘 Hệ thống Tài liệu Ôn tập Nền tảng THCS (Lớp 6, 7, 8, 9) — Bám sát Chương trình Giáo dục Phổ thông 2018</span>
+        <span>Mẹo: Chọn khối lớp và môn học phía trên để tra cứu nhanh khi làm bài tập</span>
+      </footer>
     </div>
   </div>
 
@@ -1054,6 +1081,7 @@ function doGet(e) {
     </footer>
   </div>
 
+  <script src="/study-hub.js"></script>
   <script src="/app.js"></script>
 </body>
 </html>

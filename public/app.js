@@ -1651,7 +1651,11 @@ function bindGlobalEvents() {
     camouflageScreen.classList.remove('hidden');
     camouflageScreen.setAttribute('aria-hidden', 'false');
     mainApp.classList.add('hidden');
-    document.title = 'Ôn tập Công thức Toán & Tiếng Anh THCS';
+    document.title = 'Sổ Tay Kiến Thức Nền Tảng THCS (Lớp 6 – 9) | GDPT 2018';
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    if (window.StudyHub && typeof window.StudyHub.syncGrade === 'function') {
+      window.StudyHub.syncGrade(appState.grade);
+    }
   };
 
   const deactivateCamouflage = () => {
