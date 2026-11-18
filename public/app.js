@@ -42,11 +42,17 @@ const appState = {
   lastEscTime: 0
 };
 
-function formatMarkdown(text = '') {
-  const escaped = String(text)
+function escapeHtml(str = '') {
+  return String(str)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function formatMarkdown(text = '') {
+  const escaped = escapeHtml(text);
 
   return escaped
     .replace(/^### (.*)$/gm, '<h3>$1</h3>')
@@ -81,8 +87,14 @@ async function initApp() {
   bindGlobalEvents();
   await loadBootstrapData();
   renderInitialWelcomeChat();
-  // Tải sẵn mẫu tra cứu NA-7868 ngay trên màn hình để học sinh/nhà trường thấy tức thì
-  await lookupHelpRequest('NA-7868');
+  // Chế độ demo: tải sẵn mẫu tra cứu NA-7868; chế độ dữ liệu thật: ẩn các phần demo
+  if (appState.demoMode !== false) {
+    await lookupHelpRequest('NA-7868');
+  } else {
+    document.querySelectorAll('.demo-only').forEach(el => el.classList.add('hidden'));
+    const lookupInput = document.getElementById('input-lookup-code');
+    if (lookupInput) lookupInput.value = '';
+  }
 }
 
 async function loadBootstrapData() {
@@ -91,6 +103,7 @@ async function loadBootstrapData() {
     const data = await res.json();
     if (!data.ok) return;
 
+    appState.demoMode = data.demoMode;
     appState.gradeProfiles = data.gradeProfiles || {};
     appState.scenarios = data.scenarios || [];
     appState.supportDirectory = data.supportDirectory || [];
@@ -651,15 +664,15 @@ async function lookupHelpRequest(codeRaw) {
   if (!data.ok) {
     container.innerHTML = `
       <div class="lookup-result-card">
-        <p style="color:#DC2626; font-weight:700;">${data.error}</p>
+        <p style="color:#DC2626; font-weight:700;">${escapeHtml(data.error)}</p>
       </div>
     `;
     return;
   }
 
   const req = data.request;
-  const routedChannelsText = (req.zaloDispatch?.routedChannelNames || [req.recipient]).join(' + ');
-  const sheetRow = req.googleSheetSync?.rowNumber || 2;
+  const routedChannelsText = escapeHtml((req.zaloDispatch?.routedChannelNames || [req.recipient]).join(' + '));
+  const sheetRow = escapeHtml(req.googleSheetSync?.rowNumber || 2);
   const isReplied = req.status === 'replied';
 
   const statusBadge = isReplied
@@ -673,17 +686,22 @@ async function lookupHelpRequest(codeRaw) {
         <strong style="font-size:0.82rem; color:#92400E;">💬 Lời nhắn phản hồi thêm của em (Ẩn danh):</strong>
         ${req.studentFollowUps
           .map(
-            f => `<p class="small-note" style="margin-top:0.25rem; color:#0F293A;">• "${f.message}" <em>(${formatDateVN(f.createdAt)})</em></p>`
+            f => `<p class="small-note" style="margin-top:0.25rem; color:#0F293A;">• "${escapeHtml(f.message)}" <em>(${escapeHtml(formatDateVN(f.createdAt))})</em></p>`
           )
           .join('')}
       </div>
     `
       : '';
 
+  const safeCode = escapeHtml(req.trackingCode);
+  const safeIdentity = req.isAnonymous
+    ? `Ẩn danh: ${escapeHtml(req.nickname)}`
+    : escapeHtml(req.studentName);
+
   container.innerHTML = `
     <div class="lookup-result-card">
       <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.4rem; margin-bottom:0.45rem;">
-        <strong>Mã bảo mật: <code>${req.trackingCode}</code> (${req.isAnonymous ? `Ẩn danh: ${req.nickname}` : req.studentName} • Lớp ${req.grade})</strong>
+        <strong>Mã bảo mật: <code>${safeCode}</code> (${safeIdentity} • Lớp ${escapeHtml(req.grade)})</strong>
         ${statusBadge}
       </div>
 
@@ -700,23 +718,23 @@ async function lookupHelpRequest(codeRaw) {
         </div>
       </div>
 
-      <p class="small-note"><strong>Phân loại:</strong> ${req.categoryLabel} • <strong>Mức độ:</strong> ${String(req.urgency).toUpperCase()}</p>
-      ${req.evidenceNote ? `<p class="small-note" style="margin-top:0.2rem;"><strong>📎 Bằng chứng bổ sung:</strong> ${req.evidenceNote}</p>` : ''}
-      ${req.contactMethod ? `<p class="small-note" style="margin-top:0.2rem;"><strong>📞 Phương thức liên hệ hỗ trợ:</strong> ${req.contactMethod}</p>` : ''}
-      <p style="margin-top:0.45rem; font-size:0.9rem;"><strong>Nội dung em đã gửi:</strong> "${req.description}"</p>
+      <p class="small-note"><strong>Phân loại:</strong> ${escapeHtml(req.categoryLabel)} • <strong>Mức độ:</strong> ${escapeHtml(String(req.urgency).toUpperCase())}</p>
+      ${req.evidenceNote ? `<p class="small-note" style="margin-top:0.2rem;"><strong>📎 Bằng chứng bổ sung:</strong> ${escapeHtml(req.evidenceNote)}</p>` : ''}
+      ${req.contactMethod ? `<p class="small-note" style="margin-top:0.2rem;"><strong>📞 Phương thức liên hệ hỗ trợ:</strong> ${escapeHtml(req.contactMethod)}</p>` : ''}
+      <p style="margin-top:0.45rem; font-size:0.9rem;"><strong>Nội dung em đã gửi:</strong> "${escapeHtml(req.description)}"</p>
 
       ${
         isReplied
           ? `
         <div class="counselor-reply-box">
-          <strong>🌻 Lời nhắn phản hồi từ ${req.repliedBy}:</strong>
-          <p style="margin-top:0.3rem;">${req.counselorReply}</p>
-          <div class="small-note" style="margin-top:0.3rem;">Phản hồi lúc: ${formatDateVN(req.repliedAt)}</div>
+          <strong>🌻 Lời nhắn phản hồi từ ${escapeHtml(req.repliedBy)}:</strong>
+          <p style="margin-top:0.3rem;">${escapeHtml(req.counselorReply)}</p>
+          <div class="small-note" style="margin-top:0.3rem;">Phản hồi lúc: ${escapeHtml(formatDateVN(req.repliedAt))}</div>
         </div>
       `
           : `
         <div class="counselor-reply-box" style="background:#FFFBEB; border-left-color:#F59E0B;">
-          <strong>💛 Thông báo từ Hệ thống Định tuyến:</strong> Hồ sơ của em đã được đẩy vào <strong>${routedChannelsText}</strong> và đồng bộ lên Google Sheet trung tâm (Hàng #${sheetRow}). Thầy cô sẽ phản hồi vào mã <code>${req.trackingCode}</code> sớm nhất!
+          <strong>💛 Thông báo từ Hệ thống Định tuyến:</strong> Hồ sơ của em đã được đẩy vào <strong>${routedChannelsText}</strong> và đồng bộ lên Google Sheet trung tâm (Hàng #${sheetRow}). Thầy cô sẽ phản hồi vào mã <code>${safeCode}</code> sớm nhất!
         </div>
       `
       }
@@ -725,7 +743,7 @@ async function lookupHelpRequest(codeRaw) {
 
       <!-- Học sinh có thể nhắn phản hồi nối tiếp hoàn toàn ẩn danh bằng mã bảo mật -->
       <div class="student-followup-box">
-        <label class="small-note" for="input-student-followup"><strong>✉️ Nhắn thêm cho thầy cô qua mã ${req.trackingCode} (Hoàn toàn ẩn danh):</strong></label>
+        <label class="small-note" for="input-student-followup"><strong>✉️ Nhắn thêm cho thầy cô qua mã ${safeCode} (Hoàn toàn ẩn danh):</strong></label>
         <form id="form-student-followup" class="followup-form-row" data-code="${req.trackingCode}">
           <input type="text" id="input-student-followup" placeholder="Nhập lời nhắn tiếp theo của em (không cần lộ tên/SĐT)..." required />
           <button type="submit" class="btn-secondary-sm">Gửi ẩn danh</button>
@@ -845,10 +863,10 @@ function renderMoodJournalList() {
     div.className = 'mood-log-item';
     div.innerHTML = `
       <div style="display:flex; justify-content:space-between; font-weight:700;">
-        <span>${emojiMap[item.mood] || '🌻'} ${item.nickname} (Lớp ${item.grade}) — ${item.moodLabel}</span>
-        <span class="small-note">${formatDateVN(item.createdAt)}</span>
+        <span>${emojiMap[item.mood] || '🌻'} ${escapeHtml(item.nickname)} (Lớp ${escapeHtml(item.grade)}) — ${escapeHtml(item.moodLabel)}</span>
+        <span class="small-note">${escapeHtml(formatDateVN(item.createdAt))}</span>
       </div>
-      <p style="margin-top:0.2rem; color:#3B5568;">${item.note}</p>
+      <p style="margin-top:0.2rem; color:#3B5568;">${escapeHtml(item.note)}</p>
     `;
     listEl.appendChild(div);
   });
@@ -861,16 +879,16 @@ function renderKindnessWall() {
 
   appState.kindnessMessages.forEach(card => {
     const el = document.createElement('div');
-    el.className = `kindness-card ${card.color || 'amber'}`;
+    el.className = `kindness-card ${escapeHtml(card.color || 'amber')}`;
     el.innerHTML = `
       <div>
-        <div class="k-card-target">💌 Gửi tới: ${card.toTarget}</div>
-        <p class="k-card-msg">“${card.message}”</p>
+        <div class="k-card-target">💌 Gửi tới: ${escapeHtml(card.toTarget)}</div>
+        <p class="k-card-msg">“${escapeHtml(card.message)}”</p>
       </div>
       <div class="k-card-footer">
-        <span>🌻 Từ: <strong>${card.fromNickname}</strong> (Lớp ${card.grade})</span>
-        <button type="button" class="btn-like-kindness" data-id="${card.id}">
-          💛 ${card.likes || 1}
+        <span>🌻 Từ: <strong>${escapeHtml(card.fromNickname)}</strong> (Lớp ${escapeHtml(card.grade)})</span>
+        <button type="button" class="btn-like-kindness" data-id="${escapeHtml(card.id)}">
+          💛 ${Number(card.likes) || 1}
         </button>
       </div>
     `;
@@ -955,6 +973,11 @@ async function loginAdminRole(pinCode) {
   appState.adminToken = data.session.token;
   appState.activeAdminRole = data.session;
 
+  const exportLink = document.querySelector('.btn-export-sheet');
+  if (exportLink) {
+    exportLink.href = `/api/counselor/export-sheet.csv?token=${encodeURIComponent(data.session.token)}`;
+  }
+
   if (fb) {
     fb.style.color = '#059669';
     fb.textContent = `✅ Đã kích hoạt phân quyền: ${data.session.title} (Luồng được phép truy cập: ${data.session.allowedChannels.join(', ')})`;
@@ -1027,7 +1050,22 @@ async function loadCounselorRequests() {
     }
     const res = await fetch('/api/counselor/requests', { headers });
     const data = await res.json();
-    if (!data.ok) return;
+    if (!data.ok) {
+      if (data.requireAuth) {
+        const roleHeading = document.getElementById('admin-role-heading');
+        if (roleHeading) {
+          roleHeading.textContent = '🔒 Chế độ Bảo mật Nhà trường: Vui lòng nhập Mã PIN Phân quyền để xem hồ sơ';
+        }
+        const listBox = document.getElementById('counselor-requests-list');
+        if (listBox) {
+          listBox.innerHTML = `<div class="card" style="background:#FFFBEB; border:1px solid #FDE68A;">
+            <p style="font-weight:700; color:#92400E;">🔐 ${escapeHtml(data.error)}</p>
+            <p class="small-note" style="margin-top:0.3rem;">Nhập Mã PIN của Phòng Tâm lý, GV Chủ nhiệm hoặc Ban Giám hiệu vào ô phía trên để mở khóa đúng luồng hồ sơ được phân quyền.</p>
+          </div>`;
+        }
+      }
+      return;
+    }
 
     appState.counselorRequests = data.requests || [];
     appState.integrations = data.integrations || {};
@@ -1110,32 +1148,37 @@ function renderCounselorPortal() {
         <div style="margin-top:0.5rem; background:#FFFBEB; padding:0.6rem; border-radius:8px; border:1px solid #FDE68A;">
           <strong class="small-note">💬 Học sinh nhắn phản hồi ẩn danh:</strong>
           ${req.studentFollowUps
-            .map(f => `<div class="small-note">• "${f.message}" (${formatDateVN(f.createdAt)})</div>`)
+            .map(f => `<div class="small-note">• "${escapeHtml(f.message)}" (${escapeHtml(formatDateVN(f.createdAt))})</div>`)
             .join('')}
         </div>
       `
         : '';
 
+    const safeCode = escapeHtml(req.trackingCode);
+    const safeStudent = req.isAnonymous
+      ? `${escapeHtml(req.nickname)} (Ẩn danh 100%)`
+      : `${escapeHtml(req.studentName)} (${escapeHtml(req.className)})`;
+
     card.innerHTML = `
       <div class="c-req-header">
         <div>
-          <strong>Mã Tra Cứu: <code>${req.trackingCode}</code></strong> —
-          <span>Học sinh: <strong>${req.isAnonymous ? `${req.nickname} (Ẩn danh 100%)` : `${req.studentName} (${req.className})`}</strong> • Khối Lớp ${req.grade}</span>
+          <strong>Mã Tra Cứu: <code>${safeCode}</code></strong> —
+          <span>Học sinh: <strong>${safeStudent}</strong> • Khối Lớp ${escapeHtml(req.grade)}</span>
         </div>
         <div class="c-req-badges">
           ${zaloChannelsBadges}
           ${sheetBadge}
           ${urgencyBadge}
           ${statusBadge}
-          <span class="small-note">${formatDateVN(req.createdAt)}</span>
+          <span class="small-note">${escapeHtml(formatDateVN(req.createdAt))}</span>
         </div>
       </div>
 
-      <p class="small-note"><strong>Phân loại:</strong> ${req.categoryLabel} • <strong>Địa điểm/Thời gian:</strong> ${req.locationAndTime}</p>
-      ${req.evidenceNote ? `<p class="small-note"><strong>📎 Bằng chứng bổ sung:</strong> ${req.evidenceNote}</p>` : ''}
-      ${req.contactMethod ? `<p class="small-note"><strong>📞 Phương thức liên hệ học sinh để lại:</strong> ${req.contactMethod}</p>` : ''}
+      <p class="small-note"><strong>Phân loại:</strong> ${escapeHtml(req.categoryLabel)} • <strong>Địa điểm/Thời gian:</strong> ${escapeHtml(req.locationAndTime)}</p>
+      ${req.evidenceNote ? `<p class="small-note"><strong>📎 Bằng chứng bổ sung:</strong> ${escapeHtml(req.evidenceNote)}</p>` : ''}
+      ${req.contactMethod ? `<p class="small-note"><strong>📞 Phương thức liên hệ học sinh để lại:</strong> ${escapeHtml(req.contactMethod)}</p>` : ''}
       <p style="margin-top:0.5rem; background:#FFFDF7; padding:0.75rem; border-radius:8px; border:1px solid #F2E8CF;">
-        <strong>Nội dung học sinh chia sẻ:</strong> "${req.description}"
+        <strong>Nội dung học sinh chia sẻ:</strong> "${escapeHtml(req.description)}"
       </p>
 
       ${followUpsHtml}
@@ -1144,8 +1187,8 @@ function renderCounselorPortal() {
         req.status === 'replied'
           ? `
         <div class="counselor-reply-box">
-          <strong>🌻 Phản hồi đã gửi (${req.repliedBy}):</strong>
-          <p>${req.counselorReply}</p>
+          <strong>🌻 Phản hồi đã gửi (${escapeHtml(req.repliedBy)}):</strong>
+          <p>${escapeHtml(req.counselorReply)}</p>
         </div>
       `
           : ''
@@ -1186,8 +1229,8 @@ function renderCounselorPortal() {
         <span class="small-note zalo-copy-status" style="color:#059669; font-weight:700;"></span>
       </div>
 
-      <form class="c-reply-form" data-code="${req.trackingCode}">
-        <textarea rows="2" placeholder="Nhập lời khuyên tâm lý và phương án hỗ trợ bảo vệ học sinh (mã ${req.trackingCode})..." required>${req.counselorReply || ''}</textarea>
+      <form class="c-reply-form" data-code="${safeCode}">
+        <textarea rows="2" placeholder="Nhập lời khuyên tâm lý và phương án hỗ trợ bảo vệ học sinh (mã ${safeCode})..." required>${escapeHtml(req.counselorReply || '')}</textarea>
         <button type="submit" class="btn-send-counselor-reply">
           ${req.status === 'replied' ? 'Cập nhật & Đồng bộ Sheet' : '💌 Gửi phản hồi & Đồng bộ Sheet'}
         </button>
@@ -1381,16 +1424,18 @@ function bindGlobalEvents() {
   if (btnSaveGemini) {
     btnSaveGemini.addEventListener('click', async () => {
       const key = document.getElementById('input-gemini-key').value;
+      const headers = { 'Content-Type': 'application/json' };
+      if (appState.adminToken) headers['X-Admin-Token'] = appState.adminToken;
       const res = await fetch('/api/settings/gemini', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ apiKey: key })
       });
       const data = await res.json();
       const msgEl = document.getElementById('gemini-save-msg');
       const labelEl = document.getElementById('ai-engine-label');
-      if (msgEl) msgEl.textContent = data.message || '';
-      if (labelEl) {
+      if (msgEl) msgEl.textContent = data.message || data.error || '';
+      if (labelEl && data.ok) {
         labelEl.textContent = data.hasGeminiKey
           ? 'Gemini API + AI Sư phạm An toàn'
           : 'AI Sư phạm Nội tại (Sẵn sàng 100%)';
@@ -1518,9 +1563,11 @@ function bindGlobalEvents() {
   if (webhookForm) {
     webhookForm.addEventListener('submit', async e => {
       e.preventDefault();
+      const headers = { 'Content-Type': 'application/json' };
+      if (appState.adminToken) headers['X-Admin-Token'] = appState.adminToken;
       const res = await fetch('/api/counselor/integrations', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           quick_zalo_psych: document.getElementById('quick-zalo-psych')?.value || '',
           quick_zalo_gvcn: document.getElementById('quick-zalo-gvcn')?.value || '',
@@ -1533,10 +1580,16 @@ function bindGlobalEvents() {
       });
       const data = await res.json();
       const msgEl = document.getElementById('webhook-save-msg');
-      if (msgEl && data.ok) {
-        msgEl.textContent = `✅ ${data.message}`;
-        appState.integrations = data.integrations;
-        renderZaloQrConnectBoxes(data.integrations);
+      if (msgEl) {
+        if (data.ok) {
+          msgEl.style.color = '#059669';
+          msgEl.textContent = `✅ ${data.message}`;
+          appState.integrations = data.integrations;
+          renderZaloQrConnectBoxes(data.integrations);
+        } else {
+          msgEl.style.color = '#DC2626';
+          msgEl.textContent = `⚠️ ${data.error || 'Không thể lưu cấu hình.'}`;
+        }
       }
     });
   }
@@ -1602,7 +1655,7 @@ function bindGlobalEvents() {
     camouflageScreen.classList.add('hidden');
     camouflageScreen.setAttribute('aria-hidden', 'true');
     mainApp.classList.remove('hidden');
-    document.title = 'Trạm Nắng Ấm 🌻 | Không Gian An Toàn Cho Học Sinh Lớp 6 - Lớp 9';
+    document.title = 'BẠN ĐỒNG HÀNH AI 🌻 | Tư Vấn Tâm Lý Ẩn Danh THCS';
   };
 
   if (btnCamouflage) btnCamouflage.addEventListener('click', activateCamouflage);

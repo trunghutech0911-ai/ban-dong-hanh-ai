@@ -12,7 +12,8 @@ const {
 const {
   INTERACTIVE_SCENARIOS,
   SUPPORT_DIRECTORY,
-  INITIAL_DB
+  INITIAL_DB,
+  DEMO_MODE
 } = require('./src/seed-data');
 const {
   ZALO_CHANNELS,
@@ -74,6 +75,8 @@ function writeDb(db) {
 }
 
 function getSecurityHeaders(contentType = 'application/json; charset=utf-8') {
+  const isApiOrCsv =
+    contentType.includes('application/json') || contentType.includes('text/csv');
   return {
     'Content-Type': contentType,
     'Access-Control-Allow-Origin': '*',
@@ -81,7 +84,9 @@ function getSecurityHeaders(contentType = 'application/json; charset=utf-8') {
     'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Token',
     'X-Content-Type-Options': 'nosniff',
     'X-Frame-Options': 'SAMEORIGIN',
-    'Referrer-Policy': 'no-referrer'
+    'Referrer-Policy': 'no-referrer',
+    'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+    ...(isApiOrCsv ? { 'Cache-Control': 'no-store, max-age=0' } : {})
   };
 }
 
@@ -143,6 +148,7 @@ function createAppHandler(options = {}) {
   const security = new SecurityGuard();
   const maxHelpRequestsPerWindow = options.maxHelpRequestsPerWindow || 8;
   const maxChatPerWindow = options.maxChatPerWindow || 30;
+  const isDemoMode = options.demoMode !== undefined ? Boolean(options.demoMode) : DEMO_MODE;
 
   return async (req, res) => {
     try {
@@ -184,13 +190,19 @@ function createAppHandler(options = {}) {
           scenarios: INTERACTIVE_SCENARIOS,
           supportDirectory: SUPPORT_DIRECTORY,
           zaloChannels: ZALO_CHANNELS,
-          integrations: db.settings?.integrations || INITIAL_DB.settings.integrations,
+          // Chỉ trả link Zalo công khai ra bootstrap, tuyệt đối không lộ Webhook nội bộ ra phía học sinh
+          integrations: {
+            zaloQuickLinks:
+              db.settings?.integrations?.zaloQuickLinks ||
+              INITIAL_DB.settings.integrations.zaloQuickLinks
+          },
           adminRolesSummary: Object.values(ADMIN_ROLES).map(r => ({
             role: r.role,
             title: r.title,
             allowedChannels: r.allowedChannels,
-            demoPinHint: r.pinCode
+            ...(isDemoMode ? { demoPinHint: r.pinCode } : {})
           })),
+          demoMode: isDemoMode,
           moodLogs: (db.moodLogs || []).slice(0, 20),
           kindnessMessages: (db.kindnessMessages || []).slice(0, 30),
           stats: {
@@ -287,6 +299,15 @@ function createAppHandler(options = {}) {
           });
         }
 
+        // Lớp bảo vệ 4: Chống nội dung rác / spam link quảng cáo
+        const spamCheck = security.checkSpamPattern(description);
+        if (spamCheck.isSpam) {
+          return sendJson(res, 400, {
+            ok: false,
+            error: spamCheck.reason
+          });
+        }
+
         const db = readDb();
         const trackingCode = generateUniqueTrackingCode(db.helpRequests || []);
         const isAnonymous = body.isAnonymous !== false;
@@ -365,6 +386,15 @@ function createAppHandler(options = {}) {
 
       // 4. GET /api/help-requests/lookup?code=NA-XXXX - Học sinh tra cứu ẩn danh bằng Mã Bảo Mật
       if (req.method === 'GET' && pathname === '/api/help-requests/lookup') {
+        // Chống dò quét hàng loạt Mã Tra Cứu (Brute-force protection)
+        const lookupRate = security.checkRateLimit(clientHash, 'lookup', 25, 5 * 60 * 1000);
+        if (!lookupRate.allowed) {
+          return sendJson(res, 429, {
+            ok: false,
+            error: `Em tra cứu quá nhiều lần liên tiếp. Vui lòng đợi ${lookupRate.retryAfterSeconds} giây nhé!`
+          });
+        }
+
         const code = security.sanitizeInput(parsedUrl.searchParams.get('code') || '', 20).toUpperCase();
         if (!code) {
           return sendJson(res, 400, { ok: false, error: 'Vui lòng nhập Mã Tra Cứu Bí Mật (VD: NA-7868).' });
@@ -376,10 +406,13 @@ function createAppHandler(options = {}) {
         if (!found) {
           return sendJson(res, 404, {
             ok: false,
-            error: `Không tìm thấy hộp thư với mã "${code}". Em có thể thử mã mẫu NA-7868, NA-2026, NA-6868 hoặc NA-9090 nhé!`
+            error: isDemoMode
+              ? `Không tìm thấy hộp thư với mã "${code}". Em có thể thử mã mẫu NA-7868, NA-2026, NA-6868 hoặc NA-9090 nhé!`
+              : `Không tìm thấy hộp thư với mã "${code}". Em hãy kiểm tra lại Mã Tra Cứu Bí Mật của mình nhé.`
           });
         }
-        const { privacyHash, ...safeRequest } = found;
+        // Không trả privacyHash hay tài liệu tham mưu nội bộ BGH ra phía tra cứu của học sinh
+        const { privacyHash, aiCoPilotBriefing, ...safeRequest } = found;
         return sendJson(res, 200, {
           ok: true,
           request: safeRequest
@@ -446,7 +479,9 @@ function createAppHandler(options = {}) {
         if (!session) {
           return sendJson(res, 401, {
             ok: false,
-            error: 'Mã PIN phân quyền không chính xác. (Gợi ý mã demo: TL-2026, GV-2026 hoặc BGH-2026)'
+            error: isDemoMode
+              ? 'Mã PIN phân quyền không chính xác. (Gợi ý mã demo: TL-2026, GV-2026 hoặc BGH-2026)'
+              : 'Mã PIN phân quyền không chính xác.'
           });
         }
 
@@ -460,6 +495,15 @@ function createAppHandler(options = {}) {
       if (req.method === 'GET' && pathname === '/api/counselor/requests') {
         const db = readDb();
         const adminSession = security.verifyAdminSession(req);
+        // Ở chế độ chạy dữ liệu thật (DEMO_DATA=off), BẮT BUỘC đăng nhập Mã PIN mới được xem hồ sơ học sinh
+        if (!isDemoMode && !adminSession) {
+          return sendJson(res, 401, {
+            ok: false,
+            requireAuth: true,
+            error: 'Chế độ bảo mật nhà trường đang bật: Vui lòng nhập Mã PIN phân quyền để xem hồ sơ học sinh.'
+          });
+        }
+
         const channelFilter = parsedUrl.searchParams.get('channel') || 'all';
 
         let list = (db.helpRequests || []).map(({ privacyHash, ...rest }) => ({
@@ -506,10 +550,17 @@ function createAppHandler(options = {}) {
 
       // 8. POST /api/counselor/reply - Giáo viên Tư vấn phản hồi & tự động đồng bộ lại Google Sheet
       if (req.method === 'POST' && pathname === '/api/counselor/reply') {
+        const adminSession = security.verifyAdminSession(req);
+        if (!isDemoMode && !adminSession) {
+          return sendJson(res, 401, {
+            ok: false,
+            error: 'Vui lòng đăng nhập Mã PIN phân quyền trước khi gửi phản hồi cho học sinh.'
+          });
+        }
+
         const body = await parseJsonBody(req);
         const trackingCode = security.sanitizeInput(body.trackingCode || '', 20).toUpperCase();
         const counselorReply = security.sanitizeInput(body.counselorReply || '', 2000);
-        const adminSession = security.verifyAdminSession(req);
         const defaultReplier = adminSession
           ? adminSession.title
           : 'ThS. Nguyễn Minh Tâm - Phòng Tâm lý Học đường';
@@ -565,17 +616,48 @@ function createAppHandler(options = {}) {
 
       // 9. GET /api/counselor/export-sheet.csv - Tải file Google Sheet Trung tâm (.csv chuẩn UTF-8)
       if (req.method === 'GET' && pathname === '/api/counselor/export-sheet.csv') {
+        const queryToken = parsedUrl.searchParams.get('token') || '';
+        const adminSession = security.verifyAdminSession(req, queryToken);
+        if (!isDemoMode && !adminSession) {
+          return sendJson(res, 401, {
+            ok: false,
+            error: 'Vui lòng đăng nhập Mã PIN phân quyền (Phòng Tâm lý hoặc Ban Giám hiệu) để tải dữ liệu.'
+          });
+        }
+        if (adminSession && !adminSession.canExportSheet) {
+          return sendJson(res, 403, {
+            ok: false,
+            error: `Vai trò [${adminSession.title}] không có quyền xuất toàn bộ file Google Sheet nhà trường.`
+          });
+        }
+
         const db = readDb();
-        const csv = generateGoogleSheetCsv(db.helpRequests || []);
+        let list = db.helpRequests || [];
+        if (adminSession && Array.isArray(adminSession.allowedChannels)) {
+          list = list.filter(r =>
+            (r.zaloDispatch?.routedChannels || ['zalo_psych']).some(ch =>
+              adminSession.allowedChannels.includes(ch)
+            )
+          );
+        }
+        const csv = generateGoogleSheetCsv(list);
         res.writeHead(200, {
           ...getSecurityHeaders('text/csv; charset=utf-8'),
-          'Content-Disposition': 'attachment; filename="GoogleSheet_TramNangAm_THCS.csv"'
+          'Content-Disposition': 'attachment; filename="GoogleSheet_BanDongHanh_THCS.csv"'
         });
         return res.end(csv);
       }
 
       // 10. POST /api/counselor/integrations - Cấu hình Nhanh 3 Luồng Zalo (SĐT/Group/QR/Webhook) & Google Sheet Trung tâm
       if (req.method === 'POST' && pathname === '/api/counselor/integrations') {
+        const adminSession = security.verifyAdminSession(req);
+        if (!isDemoMode && (!adminSession || !adminSession.canConfigWebhooks)) {
+          return sendJson(res, 403, {
+            ok: false,
+            error: 'Chỉ Ban Giám hiệu (đăng nhập Mã PIN BGH) mới có quyền thay đổi cấu hình kết nối Zalo & Google Sheet.'
+          });
+        }
+
         const body = await parseJsonBody(req);
         const db = readDb();
         if (!db.settings) db.settings = {};
@@ -724,6 +806,11 @@ function createAppHandler(options = {}) {
           });
         }
 
+        const kindnessSpam = security.checkSpamPattern(message);
+        if (kindnessSpam.isSpam) {
+          return sendJson(res, 400, { ok: false, error: kindnessSpam.reason });
+        }
+
         const db = readDb();
         const newCard = {
           id: `k-${Date.now()}`,
@@ -761,6 +848,13 @@ function createAppHandler(options = {}) {
 
       // 14. POST /api/settings/gemini - Cấu hình Gemini API Key tùy chọn
       if (req.method === 'POST' && pathname === '/api/settings/gemini') {
+        const adminSession = security.verifyAdminSession(req);
+        if (!isDemoMode && (!adminSession || !adminSession.canConfigWebhooks)) {
+          return sendJson(res, 403, {
+            ok: false,
+            error: 'Chỉ Ban Giám hiệu mới có quyền cấu hình Gemini API Key ở chế độ vận hành chính thức.'
+          });
+        }
         const body = await parseJsonBody(req);
         runtimeGeminiApiKey = security.sanitizeInput(body.apiKey || '', 200);
         return sendJson(res, 200, {
@@ -774,9 +868,23 @@ function createAppHandler(options = {}) {
 
       // 15. POST /api/counselor/copilot-chat - Trợ lý AI Cố vấn Sư phạm & Pháp lý cho Thầy Cô & Ban Giám hiệu
       if (req.method === 'POST' && pathname === '/api/counselor/copilot-chat') {
+        const copilotRate = security.checkRateLimit(clientHash, 'copilot', 20, 60 * 1000);
+        if (!copilotRate.allowed) {
+          return sendJson(res, 429, {
+            ok: false,
+            error: `Vui lòng đợi ${copilotRate.retryAfterSeconds} giây rồi đặt câu hỏi tiếp nhé.`
+          });
+        }
+        const adminSession = security.verifyAdminSession(req);
+        if (!isDemoMode && !adminSession) {
+          return sendJson(res, 401, {
+            ok: false,
+            error: 'Vui lòng đăng nhập Mã PIN phân quyền để sử dụng Trợ lý AI Cố vấn cho Giáo viên & BGH.'
+          });
+        }
+
         const body = await parseJsonBody(req);
         const question = security.sanitizeInput(body.question || '', 1200);
-        const adminSession = security.verifyAdminSession(req);
         const roleTitle = adminSession ? adminSession.title : 'Ban Giám hiệu & Giáo viên Tư vấn';
 
         if (!question) {

@@ -49,7 +49,7 @@ const ADMIN_ROLES = {
   psych: {
     role: 'psych',
     title: 'Chuyên gia Phòng Tâm lý Học đường',
-    pinCode: 'TL-2026',
+    pinCode: String(process.env.PIN_PSYCH || 'TL-2026').toUpperCase(),
     allowedChannels: ['zalo_psych'],
     canExportSheet: true,
     canConfigWebhooks: false
@@ -57,7 +57,7 @@ const ADMIN_ROLES = {
   gvcn: {
     role: 'gvcn',
     title: 'Giáo viên Chủ nhiệm Khối 6–9',
-    pinCode: 'GV-2026',
+    pinCode: String(process.env.PIN_GVCN || 'GV-2026').toUpperCase(),
     allowedChannels: ['zalo_gvcn'],
     canExportSheet: false,
     canConfigWebhooks: false
@@ -65,7 +65,7 @@ const ADMIN_ROLES = {
   bgh: {
     role: 'bgh',
     title: 'Ban Giám hiệu & Quản trị Hệ thống (Toàn quyền)',
-    pinCode: 'BGH-2026',
+    pinCode: String(process.env.PIN_BGH || 'BGH-2026').toUpperCase(),
     allowedChannels: ['zalo_psych', 'zalo_gvcn', 'zalo_bgh'],
     canExportSheet: true,
     canConfigWebhooks: true
@@ -286,7 +286,11 @@ function generateGoogleSheetCsv(helpRequests = []) {
   ];
 
   const escapeCsv = val => {
-    const str = String(val ?? '').replace(/\r?\n/g, ' ');
+    let str = String(val ?? '').replace(/\r?\n/g, ' ');
+    // Chống lỗ hổng CSV Formula Injection trên Excel / Google Sheets
+    if (/^[=+\-@\t\r]/.test(str)) {
+      str = `'${str}`;
+    }
     return `"${str.replace(/"/g, '""')}"`;
   };
 
@@ -324,7 +328,16 @@ class SecurityGuard {
     this.rateBuckets = new Map();
     this.recentFingerprints = new Map();
     this.activeAdminSessions = new Map();
-    this.serverSalt = crypto.randomBytes(16).toString('hex');
+    this.serverSalt = process.env.IP_HASH_SALT || crypto.randomBytes(16).toString('hex');
+    // Khóa ký token không trạng thái (stateless) giúp đăng nhập Quản trị bền vững trên Vercel Serverless
+    this.tokenSecret =
+      process.env.SESSION_SECRET ||
+      crypto
+        .createHash('sha256')
+        .update(
+          `bdh-thcs:${ADMIN_ROLES.psych.pinCode}:${ADMIN_ROLES.gvcn.pinCode}:${ADMIN_ROLES.bgh.pinCode}`
+        )
+        .digest('hex');
   }
 
   /**
@@ -397,7 +410,32 @@ class SecurityGuard {
   }
 
   /**
+   * Kiểm tra mẫu nội dung spam/quấy rối tự động (lặp ký tự vô nghĩa, chèn nhiều link quảng cáo)
+   */
+  checkSpamPattern(content = '') {
+    const text = String(content || '').trim();
+    if (!text) return { isSpam: false };
+    // Chặn lặp 1 ký tự liên tiếp từ 14 lần trở lên (VD: "aaaaaaaaaaaaaaaaa")
+    if (/(.)\1{13,}/.test(text)) {
+      return {
+        isSpam: true,
+        reason: 'Nội dung chứa ký tự lặp lại bất thường. Em vui lòng nhập nội dung rõ ràng nhé.'
+      };
+    }
+    // Chặn rải link quảng cáo hàng loạt (> 3 đường link trong 1 tin)
+    const urls = text.match(/https?:\/\/\S+/gi) || [];
+    if (urls.length > 3) {
+      return {
+        isSpam: true,
+        reason: 'Hệ thống chống spam chỉ cho phép tối đa 3 đường link bằng chứng trong mỗi lần gửi.'
+      };
+    }
+    return { isSpam: false };
+  }
+
+  /**
    * Xác thực đăng nhập Phân quyền Quản trị (RBAC) cho 3 luồng Zalo nhà trường
+   * Dùng token HMAC-SHA256 không trạng thái (hạn 12 giờ) để chạy ổn định trên Vercel Serverless
    */
   authenticateAdminPin(pinCode = '') {
     const cleanPin = String(pinCode).trim().toUpperCase();
@@ -406,7 +444,11 @@ class SecurityGuard {
       return null;
     }
 
-    const token = crypto.randomBytes(24).toString('hex');
+    const exp = Date.now() + 12 * 60 * 60 * 1000;
+    const payload = Buffer.from(JSON.stringify({ role: matchedRole.role, exp })).toString('base64url');
+    const sig = crypto.createHmac('sha256', this.tokenSecret).update(payload).digest('base64url');
+    const token = `${payload}.${sig}`;
+
     const session = {
       token,
       role: matchedRole.role,
@@ -414,21 +456,54 @@ class SecurityGuard {
       allowedChannels: matchedRole.allowedChannels,
       canExportSheet: matchedRole.canExportSheet,
       canConfigWebhooks: matchedRole.canConfigWebhooks,
-      createdAt: Date.now()
+      createdAt: Date.now(),
+      expiresAt: exp
     };
     this.activeAdminSessions.set(token, session);
     return session;
   }
 
   /**
-   * Kiểm tra phiên đăng nhập Quản trị viên từ Header hoặc Query
+   * Kiểm tra phiên đăng nhập Quản trị viên từ Header (X-Admin-Token) hoặc Query (?token=...)
    */
-  verifyAdminSession(req) {
-    const authHeader = req.headers['x-admin-token'] || '';
-    if (authHeader && this.activeAdminSessions.has(authHeader)) {
-      return this.activeAdminSessions.get(authHeader);
+  verifyAdminSession(req, queryToken = '') {
+    const authHeader = String(req.headers['x-admin-token'] || queryToken || '').trim();
+    if (!authHeader) return null;
+
+    if (this.activeAdminSessions.has(authHeader)) {
+      const cached = this.activeAdminSessions.get(authHeader);
+      if (!cached.expiresAt || cached.expiresAt > Date.now()) {
+        return cached;
+      }
+      this.activeAdminSessions.delete(authHeader);
+      return null;
     }
-    return null;
+
+    // Xác minh chữ ký HMAC stateless (hoạt động xuyên suốt các instance Vercel Serverless)
+    const parts = authHeader.split('.');
+    if (parts.length !== 2) return null;
+    const [payload, sig] = parts;
+    const expectedSig = crypto.createHmac('sha256', this.tokenSecret).update(payload).digest('base64url');
+    if (sig.length !== expectedSig.length) return null;
+    if (!crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expectedSig))) return null;
+
+    try {
+      const decoded = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8'));
+      if (!decoded.exp || decoded.exp <= Date.now()) return null;
+      const matchedRole = ADMIN_ROLES[decoded.role];
+      if (!matchedRole) return null;
+      return {
+        token: authHeader,
+        role: matchedRole.role,
+        title: matchedRole.title,
+        allowedChannels: matchedRole.allowedChannels,
+        canExportSheet: matchedRole.canExportSheet,
+        canConfigWebhooks: matchedRole.canConfigWebhooks,
+        expiresAt: decoded.exp
+      };
+    } catch (_err) {
+      return null;
+    }
   }
 }
 

@@ -413,22 +413,22 @@ const SUPPORT_DIRECTORY = [
 
 const INITIAL_DB = {
   settings: {
-    schoolName: 'Trường THCS Nắng Ấm',
-    counselorName: 'ThS. Tâm lý Nguyễn Minh Tâm (20 năm kinh nghiệm)',
-    hasGeminiKey: false,
+    schoolName: process.env.SCHOOL_NAME || 'Trường THCS Nắng Ấm',
+    counselorName: process.env.COUNSELOR_NAME || 'ThS. Tâm lý Nguyễn Minh Tâm (20 năm kinh nghiệm)',
+    hasGeminiKey: Boolean(process.env.GEMINI_API_KEY),
     integrations: {
       zaloQuickLinks: {
-        zalo_psych: '0901234567',
-        zalo_gvcn: '0902345678',
-        zalo_bgh: 'https://zalo.me/g/bghnangam2026'
+        zalo_psych: process.env.ZALO_PSYCH_LINK || '0901234567',
+        zalo_gvcn: process.env.ZALO_GVCN_LINK || '0902345678',
+        zalo_bgh: process.env.ZALO_BGH_LINK || 'https://zalo.me/g/bghnangam2026'
       },
       zaloWebhooks: {
-        zalo_psych: '',
-        zalo_gvcn: '',
-        zalo_bgh: ''
+        zalo_psych: process.env.ZALO_WEBHOOK_ZALO_PSYCH || '',
+        zalo_gvcn: process.env.ZALO_WEBHOOK_ZALO_GVCN || '',
+        zalo_bgh: process.env.ZALO_WEBHOOK_ZALO_BGH || ''
       },
-      googleSheetWebhookUrl: '',
-      googleSheetPublicUrl: '',
+      googleSheetWebhookUrl: process.env.GOOGLE_SHEET_WEBHOOK_URL || '',
+      googleSheetPublicUrl: process.env.GOOGLE_SHEET_PUBLIC_URL || '',
       googleSheetName: 'Quản Lý Hộp Thư Báo Cáo Bắt Nạt THCS (Trung Tâm)'
     }
   },
@@ -657,7 +657,16 @@ const INITIAL_DB = {
   ]
 };
 
+// Chế độ chạy dữ liệu thật: đặt biến môi trường DEMO_DATA=off để xóa toàn bộ dữ liệu mẫu
+const DEMO_MODE = String(process.env.DEMO_DATA || 'on').toLowerCase() !== 'off';
+if (!DEMO_MODE) {
+  INITIAL_DB.moodLogs = [];
+  INITIAL_DB.kindnessMessages = [];
+  INITIAL_DB.helpRequests = [];
+}
+
 module.exports = {
+  DEMO_MODE,
   INTERACTIVE_SCENARIOS,
   SUPPORT_DIRECTORY,
   INITIAL_DB

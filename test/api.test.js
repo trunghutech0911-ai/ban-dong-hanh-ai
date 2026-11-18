@@ -142,9 +142,65 @@ async function runTests() {
       })
     });
     assert.strictEqual(dupRes.status, 429, 'Bộ lọc chống gửi lặp phải chặn nội dung trùng lặp');
-    console.log('✅ Test 7: Các lớp bảo vệ Honeypot, Chống gửi lặp (Anti-Spam) và Giới hạn tần suất hoạt động chính xác 100%.');
 
-    console.log('\n🎉 TẤT CẢ 7 BỘ KIỂM THỬ KIẾN TRÚC ĐỊNH TUYẾN & BẢO MẬT ĐỀU THÀNH CÔNG XUẤT SẮC!');
+    const spamPatternRes = await fetch(`${baseUrl}/api/help-requests`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        description: 'aaaaaaaaaaaaaaaaaaaa spam vô nghĩa'
+      })
+    });
+    assert.strictEqual(spamPatternRes.status, 400, 'Bộ lọc phải chặn spam lặp ký tự vô nghĩa');
+    console.log('✅ Test 7: Các lớp bảo vệ Honeypot, Chống gửi lặp, Chặn spam ký tự và Giới hạn tần suất hoạt động chính xác 100%.');
+
+    // 8. Kiểm tra Chế độ Bảo mật Nhà trường (Production: DEMO_DATA=off) bắt buộc đăng nhập PIN & không lộ nội bộ
+    const prodServer = createAppServer({ demoMode: false });
+    await new Promise(resolve => prodServer.listen(0, resolve));
+    const prodPort = prodServer.address().port;
+    const prodUrl = `http://localhost:${prodPort}`;
+    try {
+      const unauthReq = await fetch(`${prodUrl}/api/counselor/requests`);
+      assert.strictEqual(unauthReq.status, 401, 'Chế độ dữ liệu thật phải chặn xem hồ sơ khi chưa đăng nhập PIN');
+
+      const unauthCsv = await fetch(`${prodUrl}/api/counselor/export-sheet.csv`);
+      assert.strictEqual(unauthCsv.status, 401, 'Chế độ dữ liệu thật phải chặn tải CSV khi chưa đăng nhập PIN');
+
+      const unauthInt = await fetch(`${prodUrl}/api/counselor/integrations`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ quick_zalo_psych: '0999999999' })
+      });
+      assert.strictEqual(unauthInt.status, 403, 'Chế độ dữ liệu thật phải chặn đổi cấu hình Zalo nếu không phải BGH');
+
+      // Đăng nhập BGH bằng PIN -> token HMAC stateless hoạt động chuẩn
+      const bghLogin = await fetch(`${prodUrl}/api/admin/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pinCode: 'BGH-2026' })
+      });
+      assert.strictEqual(bghLogin.status, 200);
+      const bghToken = (await bghLogin.json()).session.token;
+      assert.ok(bghToken.includes('.'), 'Token quản trị phải là token ký HMAC-SHA256');
+
+      const authReq = await fetch(`${prodUrl}/api/counselor/requests`, {
+        headers: { 'X-Admin-Token': bghToken }
+      });
+      assert.strictEqual(authReq.status, 200);
+
+      const authCsv = await fetch(`${prodUrl}/api/counselor/export-sheet.csv?token=${encodeURIComponent(bghToken)}`);
+      assert.strictEqual(authCsv.status, 200);
+
+      // Kiểm tra tra cứu học sinh không lộ tham mưu nội bộ aiCoPilotBriefing
+      const stuLookup = await fetch(`${prodUrl}/api/help-requests/lookup?code=NA-7868`);
+      const stuData = await stuLookup.json();
+      assert.strictEqual(stuData.request.aiCoPilotBriefing, undefined, 'Không được lộ tham mưu nội bộ BGH ra phía học sinh');
+
+      console.log('✅ Test 8: Chế độ vận hành chính thức (DEMO_DATA=off) khóa chặt cổng Quản trị, token HMAC stateless & không lộ dữ liệu nội bộ.');
+    } finally {
+      prodServer.close();
+    }
+
+    console.log('\n🎉 TẤT CẢ 8 BỘ KIỂM THỬ KIẾN TRÚC ĐỊNH TUYẾN & BẢO MẬT ĐỀU THÀNH CÔNG XUẤT SẮC!');
   } finally {
     server.close();
   }
