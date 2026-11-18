@@ -1,0 +1,20 @@
+{
+  "name": "tram-nang-am-thcs",
+  "version": "1.0.0",
+  "description": "Web App tích hợp Trí tuệ Nhân tạo hỗ trợ tâm lý và phòng chống bắt nạt học đường cho học sinh THCS (Lớp 6 - Lớp 9)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test/api.test.js"
+  },
+  "keywords": [
+    "education",
+    "anti-bullying",
+    "ai-counselor",
+    "middle-school",
+    "thcs",
+    "mental-health"
+  ],
+  "author": "Chuyên gia Giáo dục & AI",
+  "license": "MIT"
+}

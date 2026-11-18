@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BẠN ĐỒNG HÀNH AI 🌻 | Tư Vấn Tâm Lý Ẩn Danh, Cá Thể Hóa & Phòng Chống Bắt Nạt Học Đường THCS (Lớp 6 - 9)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <!-- CHẾ ĐỘ NGỤY TRANG AN TOÀN (QUICK EXIT CAMOUFLAGE MODE) -->
+  <div id="camouflage-screen" class="camouflage-screen hidden" aria-hidden="true">
+    <div class="camouflage-container">
+      <div class="camouflage-header">
+        <div>
+          <span class="camouflage-badge">Tài liệu Ôn tập THCS</span>
+          <h1>Sổ Tay Công Thức Toán & Ngữ Pháp Tiếng Anh Trọng Tâm (Lớp 6 – Lớp 9)</h1>
+        </div>
+        <button id="btn-exit-camouflage" class="btn-restore-app" type="button">
+          🌻 Quay lại Trạm Nắng Ấm
+        </button>
+      </div>
+      <div class="camouflage-grid">
+        <div class="camouflage-card">
+          <h2>📐 1. Công Thức Đại Số & Hình Học Cơ Bản</h2>
+          <ul>
+            <li><strong>Lớp 6 – Tập hợp & Số nguyên:</strong> Quy tắc dấu ngoặc: Khi bỏ dấu ngoặc có dấu "-" đằng trước, ta phải đổi dấu tất cả các số hạng trong ngoặc.</li>
+            <li><strong>Lớp 7 – Tỉ lệ thức:</strong> Nếu <code>a/b = c/d</code> thì <code>a.d = b.c</code>. Tính chất dãy tỉ số bằng nhau: <code>a/b = c/d = (a+c)/(b+d)</code>.</li>
+            <li><strong>Lớp 8 – 7 Hằng đẳng thức đáng nhớ:</strong>
+              <ul>
+                <li>Bình phương của một tổng: <code>(A + B)² = A² + 2AB + B²</code></li>
+                <li>Bình phương của một hiệu: <code>(A - B)² = A² - 2AB + B²</code></li>
+                <li>Hiệu hai bình phương: <code>A² - B² = (A - B)(A + B)</code></li>
+              </ul>
+            </li>
+            <li><strong>Lớp 9 – Hệ thức lượng trong tam giác vuông:</strong> <code>b² = a.b'</code>, <code>h² = b'.c'</code>, Định lý Pytago: <code>a² = b² + c²</code>.</li>
+          </ul>
+        </div>
+        <div class="camouflage-card">
+          <h2>📘 2. Ngữ Pháp Tiếng Anh THCS (Grades 6 - 9)</h2>
+          <ul>
+            <li><strong>Present Simple (Hiện tại đơn):</strong> <code>S + V(s/es) + O</code> — Diễn tả thói quen hàng ngày hoặc sự thật hiển nhiên.</li>
+            <li><strong>Present Continuous (Hiện tại tiếp diễn):</strong> <code>S + am/is/are + V-ing</code> — Diễn tả hành động đang xảy ra tại thời điểm nói.</li>
+            <li><strong>Past Simple (Quá khứ đơn):</strong> <code>S + V2/V-ed + O</code> — Hành động đã hoàn tất trong quá khứ.</li>
+            <li><strong>Conditional Sentences (Câu điều kiện):</strong>
+              <ul>
+                <li>Loại 1: <code>If + S + V(htđ), S + will/can + V-inf</code></li>
+                <li>Loại 2: <code>If + S + V(qkđ), S + would/could + V-inf</code></li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ỨNG DỤNG CHÍNH: TRẠM NẮNG ẤM -->
+  <div id="main-app">
+    <!-- Thanh Bảo Vệ & Định Danh An Toàn Trên Cùng -->
+    <header class="top-safety-bar">
+      <div class="container safety-bar-inner">
+        <div class="brand-group">
+          <div class="brand-logo" aria-hidden="true">🌻</div>
+          <div>
+            <div class="brand-title-row">
+              <span class="brand-name">BẠN ĐỒNG HÀNH AI</span>
+              <span class="brand-tag">Lắng nghe • Thấu hiểu • Bảo vệ</span>
+            </div>
+            <p class="brand-subtitle">Tư vấn tâm lý ẩn danh, cá thể hóa & phòng chống bắt nạt học đường THCS (Lớp 6–9)</p>
+          </div>
+        </div>
+
+        <!-- Bộ chọn Khối lớp, Vai trò cá thể hóa & Biệt danh ẩn danh -->
+        <div class="student-identity-pill" aria-label="Hồ sơ ẩn danh của học sinh">
+          <div class="identity-field">
+            <label for="select-grade">Khối lớp:</label>
+            <select id="select-grade" aria-label="Chọn khối lớp của em">
+              <option value="6">🌱 Lớp 6 (11-12 tuổi)</option>
+              <option value="7" selected>🌿 Lớp 7 (12-13 tuổi)</option>
+              <option value="8">🌻 Lớp 8 (13-14 tuổi)</option>
+              <option value="9">🚀 Lớp 9 (14-15 tuổi)</option>
+            </select>
+          </div>
+          <div class="identity-field">
+            <label for="select-role">Vai trò (Mục 3.2):</label>
+            <select id="select-role" aria-label="Chọn vai trò trong tình huống">
+              <option value="victim" selected>🛡️ Người đang gặp khó khăn / bị bắt nạt</option>
+              <option value="bystander">🤝 Người chứng kiến tình huống</option>
+              <option value="perpetrator">💛 Người muốn nhận diện & sửa sai hành vi</option>
+            </select>
+          </div>
+          <div class="identity-field">
+            <label for="input-nickname">Biệt danh:</label>
+            <input id="input-nickname" type="text" value="Gấu Bông Dũng Cảm" maxlength="30" aria-label="Biệt danh ẩn danh" />
+            <button id="btn-random-nickname" type="button" class="btn-icon-small" title="Đổi biệt danh ngẫu nhiên dễ thương" aria-label="Đổi biệt danh ngẫu nhiên">🎲</button>
+          </div>
+        </div>
+
+        <!-- Cụm nút Khẩn cấp & Ngụy trang -->
+        <div class="safety-actions">
+          <button id="btn-open-sos" type="button" class="btn-sos" aria-label="Mở hỗ trợ khẩn cấp và Tổng đài 111">
+            📞 Tổng đài 111 / SOS
+          </button>
+          <button id="btn-quick-camouflage" type="button" class="btn-camouflage" title="Bấm nút này hoặc nhấn phím ESC 2 lần để đổi ngay sang màn hình công thức Toán khi có người đi ngang qua">
+            🛡️ Ẩn nhanh (ESC x2)
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Banner Chào Mừng & Thiết Kế Minh Họa Mục 2 File Word -->
+    <section class="hero-banner">
+      <div class="container hero-inner">
+        <div class="hero-content">
+          <div class="hero-pill" id="hero-grade-pill">✨ BẠN ĐỒNG HÀNH AI — Lắng nghe • Thấu hiểu • Bảo vệ (Khối Lớp 7)</div>
+          <h1 id="hero-greeting">“Xin chào <span class="highlight-name" id="display-nickname">Gấu Bông Dũng Cảm</span>! Hôm nay bạn cảm thấy thế nào?” 🌤️</h1>
+          <p id="hero-grade-desc" class="hero-desc">
+            <strong>Bạn có thể chia sẻ mà không cần cho biết họ tên. AI sẽ cùng bạn tìm cách giải quyết.</strong> Giúp học sinh lớp 6–9 có nơi chia sẻ những khó khăn tâm lý, được hướng dẫn xử lý tình huống bắt nạt học đường và kết nối với người hỗ trợ phù hợp.
+          </p>
+
+          <!-- 4 Khu vực chính của giao diện (Theo Mục 2 File Word) -->
+          <div class="word-four-areas-grid" aria-label="4 khu vực chính của giao diện">
+            <button type="button" class="word-area-card" data-jump-tab="chat">
+              <div class="wa-title">💬 Trò chuyện với AI</div>
+              <div class="wa-desc">Tâm sự và nhận hướng dẫn phù hợp với tình huống.</div>
+            </button>
+            <button type="button" class="word-area-card" data-jump-tab="helpbox">
+              <div class="wa-title">📮 Báo cáo bắt nạt</div>
+              <div class="wa-desc">Gửi phản ánh và thông tin cần thiết theo cách bảo mật.</div>
+            </button>
+            <button type="button" class="word-area-card" data-jump-tab="scenarios">
+              <div class="wa-title">🧭 Góc kỹ năng</div>
+              <div class="wa-desc">Luyện kỹ năng tự bảo vệ qua tình huống tương tác.</div>
+            </button>
+            <button type="button" class="word-area-card" data-jump-tab="helpbox" data-scroll-directory="true">
+              <div class="wa-title">👩‍🏫 Tìm người hỗ trợ</div>
+              <div class="wa-desc">Kết nối giáo viên tư vấn hoặc người lớn tin cậy (Tổng đài 111).</div>
+            </button>
+          </div>
+
+          <div class="hero-quick-stats" id="hero-stats-bar" style="margin-top:0.85rem;">
+            <div class="stat-chip">
+              <span class="stat-icon">🛡️</span>
+              <span><strong>Ẩn danh có giới hạn</strong> & Bảo vệ dữ liệu</span>
+            </div>
+            <div class="stat-chip">
+              <span class="stat-icon">📲</span>
+              <span><strong>3 Luồng Zalo</strong> (Tâm lý • GVCN • BGH)</span>
+            </div>
+            <div class="stat-chip">
+              <span class="stat-icon">📊</span>
+              <span>Đồng bộ <strong>Google Sheet & Thống kê</strong></span>
+            </div>
+            <div class="stat-chip">
+              <span class="stat-icon">💌</span>
+              <span><strong id="stat-replied-count">3</strong> Phản ánh đã xử lý (VD: <code>NA-7868</code>)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Thẻ Kiểm tra Tâm trạng Nhanh 1 chạm trên Banner (Mục 2: Vui vẻ | Buồn bã | Lo lắng | Tức giận) -->
+        <div class="hero-mood-card">
+          <h2>🌈 “Xin chào! Hôm nay bạn cảm thấy thế nào?”</h2>
+          <div class="quick-mood-grid" role="group" aria-label="Chọn nhanh tâm trạng hiện tại">
+            <button type="button" class="quick-mood-btn" data-mood="happy">
+              <span class="qm-emoji">😄</span>
+              <span class="qm-label">Vui vẻ</span>
+            </button>
+            <button type="button" class="quick-mood-btn" data-mood="sad">
+              <span class="qm-emoji">😢</span>
+              <span class="qm-label">Buồn bã</span>
+            </button>
+            <button type="button" class="quick-mood-btn" data-mood="anxious">
+              <span class="qm-emoji">😟</span>
+              <span class="qm-label">Lo lắng</span>
+            </button>
+            <button type="button" class="quick-mood-btn" data-mood="angry">
+              <span class="qm-emoji">😠</span>
+              <span class="qm-label">Tức giận</span>
+            </button>
+            <button type="button" class="quick-mood-btn" data-mood="calm">
+              <span class="qm-emoji">😌</span>
+              <span class="qm-label">Bình yên</span>
+            </button>
+            <button type="button" class="quick-mood-btn" data-mood="stressed">
+              <span class="qm-emoji">🤯</span>
+              <span class="qm-label">Áp lực học</span>
+            </button>
+          </div>
+          <div id="quick-mood-feedback" class="quick-mood-feedback" aria-live="polite">
+            💡 Chọn cảm xúc (Vui vẻ | Buồn bã | Lo lắng | Tức giận) để dễ dàng bắt đầu cuộc trò chuyện cùng Bạn Đồng Hành AI!
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Thanh Điều Hướng 6 Phân Hệ Chính (Bám sát Mục 3, 4, 5, 6, 7 File Word) -->
+    <nav class="main-tabs-nav" aria-label="Các không gian hỗ trợ chính">
+      <div class="container tabs-list" role="tablist">
+        <button type="button" role="tab" aria-selected="true" aria-controls="panel-chat" id="tab-btn-chat" class="tab-btn active" data-tab="chat">
+          <span class="tab-icon">🌞</span>
+          <span>1. AI Tư Vấn Tâm Lý Ẩn Danh</span>
+        </button>
+        <button type="button" role="tab" aria-selected="false" aria-controls="panel-scenarios" id="tab-btn-scenarios" class="tab-btn" data-tab="scenarios">
+          <span class="tab-icon">🧭</span>
+          <span>2. Thư Viện Kỹ Năng (Góc Kỹ Năng)</span>
+        </button>
+        <button type="button" role="tab" aria-selected="false" aria-controls="panel-helpbox" id="tab-btn-helpbox" class="tab-btn" data-tab="helpbox">
+          <span class="tab-icon">📮</span>
+          <span>3. Hộp Thư Báo Cáo & Kết Nối GV</span>
+        </button>
+        <button type="button" role="tab" aria-selected="false" aria-controls="panel-wellness" id="tab-btn-wellness" class="tab-btn" data-tab="wellness">
+          <span class="tab-icon">🌻</span>
+          <span>4. Góc Bình Tâm & Vườn Tử Tế</span>
+        </button>
+        <button type="button" role="tab" aria-selected="false" aria-controls="panel-counselor" id="tab-btn-counselor" class="tab-btn" data-tab="counselor">
+          <span class="tab-icon">📊</span>
+          <span>5. Thống Kê, Cảnh Báo & Xử Lý (GV)</span>
+        </button>
+        <button type="button" role="tab" aria-selected="false" aria-controls="panel-project-spec" id="tab-btn-project-spec" class="tab-btn" data-tab="project-spec">
+          <span class="tab-icon">⚖️</span>
+          <span>6. Quy Trình, An Toàn & Pháp Lý</span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- NỘI DUNG CÁC PHÂN HỆ -->
+    <main class="container main-content-area">
+
+      <!-- =================================================================
+           PHÂN HỆ 1: TRÒ CHUYỆN CÙNG BẠN ĐỒNG HÀNH AI "MẶT TRỜI NHỎ"
+           ================================================================= -->
+      <section id="panel-chat" role="tabpanel" aria-labelledby="tab-btn-chat" class="tab-panel active">
+        <div class="chat-layout">
+          <!-- Cột Trái: Chọn Hoàn Cảnh Nhanh & Thông Tin Tâm Lý Khối Lớp -->
+          <aside class="chat-sidebar">
+            <div class="card sidebar-card">
+              <div class="card-header-badge">🎯 Hoàn cảnh em đang gặp phải</div>
+              <h3>Chọn nhanh vấn đề để AI hướng dẫn sát nhất:</h3>
+              <div class="topic-selector-list" id="chat-topic-buttons">
+                <button type="button" class="topic-chip" data-topic="isolation" data-prompt="Em đang bị các bạn trong lớp tẩy chay, cô lập không ai chơi cùng. Em buồn và lạc lõng lắm, em phải làm sao ạ?">
+                  🫧 Bị tẩy chay, cô lập trong lớp
+                </button>
+                <button type="button" class="topic-chip" data-topic="cyber_bullying" data-prompt="Có bạn chụp lén ảnh của em rồi chế ảnh, nói xấu em trong group chat của khối. Em rất sợ và tức giận!">
+                  📱 Bị chế ảnh / Nói xấu trên mạng
+                </button>
+                <button type="button" class="topic-chip" data-topic="verbal_bullying" data-prompt="Mấy bạn trong lớp cứ lấy ngoại hình của em ra trêu chọc (body shaming) và đặt biệt danh xấu cho em trước mặt cả lớp.">
+                  🛡️ Bị trêu ngoại hình / Đặt biệt danh
+                </button>
+                <button type="button" class="topic-chip" data-topic="physical_bullying" data-prompt="Có nhóm bạn chặn đường giấu cặp sách và ép em phải đưa tiền ăn sáng, còn dọa nếu mách thầy cô sẽ đánh em.">
+                  🚨 Bị dọa đánh / Trấn lột / Giấu đồ
+                </button>
+                <button type="button" class="topic-chip" data-topic="bystander" data-prompt="Em thấy một bạn hiền lành trong lớp bị các bạn khác bắt nạt, em thương bạn lắm nhưng sợ bênh bạn thì bị vạ lây.">
+                  🤝 Thấy bạn bị bắt nạt (Người chứng kiến)
+                </button>
+                <button type="button" class="topic-chip" data-topic="perpetrator_reflection" data-prompt="Hôm trước em lỡ hùa theo các bạn trêu chọc và chế ảnh một bạn trong lớp làm bạn ấy khóc. Giờ em thấy hối hận và muốn xin lỗi bạn mà không biết mở lời thế nào ạ.">
+                  💛 Lỡ trêu chọc / bắt nạt bạn (Muốn sửa sai)
+                </button>
+                <button type="button" class="topic-chip" data-topic="academic_stress" data-prompt="Dạo này em bị áp lực điểm số và thi cử quá mức, bố mẹ lại hay so sánh em với con nhà người ta làm em rất mệt mỏi.">
+                  🌱 Áp lực điểm số, thi cử & Gia đình
+                </button>
+              </div>
+            </div>
+
+            <div class="card sidebar-card grade-insight-card">
+              <div class="card-header-badge">🧠 Cá thể hóa hỗ trợ (Mục 3.2)</div>
+              <h3 id="sidebar-grade-title">Đặc điểm Tâm lý Lớp 7</h3>
+              <p id="sidebar-grade-stage" class="grade-stage-tag">Giai đoạn Kết nhóm bạn bè & Khẳng định bản thân</p>
+              <p id="sidebar-grade-struggles" class="grade-struggles-text">
+                Bị tẩy chay khỏi nhóm chơi, lập group chat nói xấu, hiểu lầm bạn thân, nhạy cảm với lời nhận xét của người khác.
+              </p>
+              <div class="small-note" style="margin-top:0.5rem; background:#FFFBEB; padding:0.5rem; border-radius:8px; border:1px solid #FDE68A;">
+                🛡️ <strong>Nguyên tắc Mục 5:</strong> Ẩn danh có giới hạn • AI không tự chẩn đoán bệnh tâm lý, không tự kết luận ai có lỗi hay kỷ luật.
+              </div>
+              <div class="ai-engine-box">
+                <div class="ai-engine-status">
+                  <span class="status-dot online"></span>
+                  <span id="ai-engine-label">AI Sư phạm Nội tại (Sẵn sàng 100%)</span>
+                </div>
+                <button type="button" id="btn-toggle-gemini-config" class="btn-link-subtle">
+                  ⚙️ Cấu hình mở rộng Gemini API (Tùy chọn)
+                </button>
+                <div id="gemini-config-drawer" class="gemini-drawer hidden">
+                  <label for="input-gemini-key">Google Gemini API Key (nếu có):</label>
+                  <input type="password" id="input-gemini-key" placeholder="AIzaSy... (Để trống vẫn dùng AI Nội tại)" />
+                  <button type="button" id="btn-save-gemini-key" class="btn-secondary-sm">Lưu cấu hình AI</button>
+                  <p id="gemini-save-msg" class="small-note"></p>
+                </div>
+              </div>
+            </div>
+          </aside>
+
+          <!-- Cột Phải: Khung Trò Chuyện BẠN ĐỒNG HÀNH AI -->
+          <div class="card chat-main-card">
+            <div class="chat-header">
+              <div class="chat-companion-info">
+                <div class="companion-avatar">🌞</div>
+                <div>
+                  <h2>BẠN ĐỒNG HÀNH AI — Lắng nghe • Thấu hiểu • Bảo vệ</h2>
+                  <p>Tư vấn tâm lý ẩn danh & Cá thể hóa theo Khối lớp (6–9), Cảm xúc, Vai trò và Mức độ an toàn</p>
+                </div>
+              </div>
+              <div class="chat-triage-badge" id="chat-risk-badge" data-risk="low">
+                🛡️ Bước 3A • An toàn
+              </div>
+            </div>
+
+            <!-- Danh sách tin nhắn -->
+            <div id="chat-messages" class="chat-messages" aria-live="polite"></div>
+
+            <!-- Gợi ý câu hỏi tiếp theo -->
+            <div id="chat-suggested-bar" class="chat-suggested-bar"></div>
+
+            <!-- Ô nhập tin nhắn -->
+            <form id="chat-form" class="chat-input-area">
+              <textarea
+                id="chat-input"
+                rows="2"
+                placeholder="Hãy kể cho Bạn Đồng Hành AI nghe chuyện đang làm em buồn hoặc lo lắng nhé... (Nhấn Enter để gửi)"
+                aria-label="Nhập nội dung tâm sự với AI"
+              ></textarea>
+              <button type="submit" id="btn-send-chat" class="btn-primary-send">
+                <span>Gửi tâm sự</span>
+                <span aria-hidden="true">🌻</span>
+              </button>
+            </form>
+
+            <!-- Thanh Chuyển tiếp Cuộc trò chuyện sang 3 Luồng Zalo Thầy Cô & Group BGH (1-Chạm) -->
+            <div class="chat-escalate-strip" style="margin-top:0.65rem; padding:0.6rem 0.85rem; background:#FFFBEB; border:1px solid #FDE68A; border-radius:10px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem;">
+              <span class="small-note" style="color:#92400E; font-weight:700;">
+                📲 Cần người lớn hỗ trợ? Đóng gói cuộc trò chuyện này gửi tới <strong>3 Luồng Zalo (Tâm lý • GVCN • Group BGH)</strong> & nhận Mã Tra Cứu:
+              </span>
+              <button type="button" id="btn-escalate-chat-to-zalo" class="btn-secondary-sm" style="background:#059669; color:#FFFFFF; border:none; padding:0.42rem 0.85rem;">
+                🚀 Chuyển Tâm Sự Này Nhờ Thầy Cô / BGH Hỗ Trợ Ngay
+              </button>
+            </div>
+            <div id="chat-escalate-result" class="small-note hidden" style="margin-top:0.45rem; padding:0.6rem; background:#E6FBF5; border:1px solid #A7F3D0; border-radius:8px; color:#065F46;"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =================================================================
+           PHÂN HỆ 2: THƯ VIỆN KỸ NĂNG PHÒNG CHỐNG BẮT NẠT (MỤC 3.4)
+           ================================================================= -->
+      <section id="panel-scenarios" role="tabpanel" aria-labelledby="tab-btn-scenarios" class="tab-panel hidden">
+        <div class="section-intro">
+          <div>
+            <span class="section-pill">🧭 Thư Viện Kỹ Năng Phòng Chống Bắt Nạt (Mục 3.4)</span>
+            <h2>Tình Huống Tương Tác & Kỹ Năng Tự Bảo Vệ, Ứng Xử Không Bạo Lực</h2>
+            <p>Cung cấp các tình huống tương tác về <strong>bắt nạt bằng lời nói, bắt nạt thể chất, cô lập bạn bè, bắt nạt trên mạng, người chứng kiến, nhận diện hành vi</strong>; hướng dẫn lưu bằng chứng và tìm đến người lớn đáng tin cậy.</p>
+          </div>
+        </div>
+
+        <div class="scenarios-layout">
+          <div id="scenario-cards-list" class="scenario-cards-list" role="listbox" aria-label="Danh sách hoàn cảnh"></div>
+          <div id="scenario-detail-view" class="card scenario-detail-card"></div>
+        </div>
+      </section>
+
+      <!-- =================================================================
+           PHÂN HỆ 3: HỘP THƯ BÁO CÁO BẮT NẠT & KẾT NỐI GIÁO VIÊN TƯ VẤN (MỤC 3.3 & 3.5)
+           ================================================================= -->
+      <section id="panel-helpbox" role="tabpanel" aria-labelledby="tab-btn-helpbox" class="tab-panel hidden">
+        <div class="helpbox-grid">
+          <!-- Cột 1: Biểu mẫu Hộp Thư Báo Cáo Bắt Nạt & Kết Nối Giáo Viên Tư Vấn -->
+          <div class="card help-form-card">
+            <div class="card-header-badge">📮 Mục 3.3 & 3.5: Hộp Thư Báo Cáo Bắt Nạt & Kết Nối Giáo Viên Tư Vấn</div>
+            <h2>Gửi Phản Ánh Bảo Mật & Kết Nối Người Hỗ Trợ</h2>
+            <p class="card-subtext">
+              Cho phép phản ánh dưới dạng văn bản, lựa chọn nhóm tình huống và <strong>bổ sung bằng chứng khi thực sự cần thiết</strong>. Học sinh được chọn <strong>báo cáo ẩn danh</strong> hoặc <strong>cung cấp phương thức liên hệ</strong> để nhận hỗ trợ trực tiếp. Trường hợp nguy cơ cao được ưu tiên chuyển theo quy trình bảo vệ trẻ em.
+            </p>
+
+            <form id="form-help-request" class="safe-form">
+              <!-- Honeypot chống Spam Bot tự động -->
+              <div class="hidden" aria-hidden="true">
+                <label for="help-website-honeypot">Không điền ô này:</label>
+                <input type="text" id="help-website-honeypot" name="website_url" tabindex="-1" autocomplete="off" />
+              </div>
+
+              <div class="anonymous-toggle-box">
+                <label class="toggle-label" for="chk-anonymous">
+                  <input type="checkbox" id="chk-anonymous" checked />
+                  <span class="toggle-text">
+                    <strong>🕵️ Chế độ Báo cáo Ẩn danh (Mục 3.3 & Mục 5)</strong> (Chỉ hiển thị biệt danh <em id="form-nick-preview">Gấu Bông Dũng Cảm</em>. Bỏ tích nếu em muốn để lại họ tên & lớp để nhận hỗ trợ trực tiếp)
+                  </span>
+                </label>
+              </div>
+
+              <div id="named-student-fields" class="form-row-2 hidden">
+                <div class="form-group">
+                  <label for="help-student-name">Họ và tên thật của em:</label>
+                  <input type="text" id="help-student-name" placeholder="Ví dụ: Nguyễn Minh An" />
+                </div>
+                <div class="form-group">
+                  <label for="help-class-name">Lớp (để thầy cô hỗ trợ trực tiếp):</label>
+                  <input type="text" id="help-class-name" placeholder="Ví dụ: 7A2" />
+                </div>
+              </div>
+
+              <div class="form-row-2">
+                <div class="form-group">
+                  <label for="help-category">Nhóm tình huống phản ánh (*):</label>
+                  <select id="help-category" required>
+                    <option value="isolation">🫧 Cô lập bạn bè / Bị tẩy chay trong lớp</option>
+                    <option value="cyber_bullying">📱 Bắt nạt trên mạng / Group Chat</option>
+                    <option value="verbal_bullying">🛡️ Bắt nạt bằng lời nói / Trêu chọc ngoại hình</option>
+                    <option value="physical_bullying">🚨 Bắt nạt thể chất / Trấn lột / Đe dọa</option>
+                    <option value="bystander">🤝 Báo cáo giúp bạn đang bị bắt nạt (Người chứng kiến)</option>
+                    <option value="perpetrator_reflection">💛 Cần hướng dẫn sửa sai / Hòa giải mâu thuẫn</option>
+                    <option value="academic_stress">🌱 Áp lực học tập, thi cử & Gia đình</option>
+                    <option value="other">💌 Yêu cầu trao đổi trực tiếp với Giáo viên tư vấn</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="help-urgency">Mức độ an toàn / Nguy cơ:</label>
+                  <select id="help-urgency" required>
+                    <option value="low">🟢 Chưa có dấu hiệu nguy hiểm (Cần lời khuyên / Bước 3A)</option>
+                    <option value="medium" selected>🟡 Cần giáo viên tư vấn lưu ý & hỗ trợ sớm</option>
+                    <option value="high">🟠 Nguy cơ cao – Cần ưu tiên can thiệp (Bước 3B • CC Zalo BGH)</option>
+                    <option value="critical">🔴 Khẩn cấp – Đang bị đe dọa trực tiếp (Bước 3B • Báo động BGH & 111)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-row-2">
+                <div class="form-group">
+                  <label for="help-recipient">Kết nối người hỗ trợ / Luồng tiếp nhận (Mục 3.5):</label>
+                  <select id="help-recipient">
+                    <option value="Phòng Tư vấn Tâm lý Học đường">📲 Giáo viên Tư vấn Tâm lý Học đường (Luồng Zalo 1)</option>
+                    <option value="Giáo viên Chủ nhiệm khối">📲 Giáo viên Chủ nhiệm Khối 6–9 (Luồng Zalo 2)</option>
+                    <option value="Ban Giám hiệu & Ban An toàn trường học">📲 Người phụ trách Bảo vệ trẻ em & BGH (Luồng Zalo 3)</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="help-location">Địa điểm & Thời gian xảy ra (nếu có):</label>
+                  <input type="text" id="help-location" placeholder="VD: Hành lang tầng 2 lúc ra chơi tiết 3..." />
+                </div>
+              </div>
+
+              <div class="form-row-2">
+                <div class="form-group">
+                  <label for="help-evidence">Bổ sung bằng chứng khi thực sự cần thiết (Mục 3.3):</label>
+                  <input type="text" id="help-evidence" placeholder="VD: Đã chụp màn hình nhóm chat Zalo lớp / Link ảnh / Camera tầng 2..." />
+                </div>
+                <div class="form-group">
+                  <label for="help-contact">Phương thức liên hệ nhận hỗ trợ trực tiếp (Tùy chọn):</label>
+                  <input type="text" id="help-contact" placeholder="Để trống nếu ẩn danh, hoặc ghi giờ hẹn P.202 / lời nhắn..." />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="help-description">Nội dung phản ánh / chia sẻ tình huống (*):</label>
+                <textarea
+                  id="help-description"
+                  rows="4"
+                  required
+                  placeholder="Em hãy kể lại sự việc, người liên quan và mong muốn hỗ trợ (Ví dụ: Mong cô kiểm tra camera giờ ra chơi mà không nhắc tên em)..."
+                ></textarea>
+              </div>
+
+              <div class="security-shield-note">
+                🔒 <strong>Nguyên tắc Ẩn danh có giới hạn & Bảo vệ dữ liệu (Mục 5):</strong> Hệ thống không hứa giữ bí mật tuyệt đối nếu có nguy cơ nghiêm trọng đe dọa tính mạng/an toàn, khi đó thông tin tối thiểu cần thiết sẽ được chuyển tới bộ phận bảo vệ trẻ em của nhà trường. Dữ liệu được mã hóa, phân quyền RBAC và tự động xóa sau thời hạn quy định theo Luật số 91/2025/QH15.
+              </div>
+
+              <button type="submit" class="btn-submit-help">
+                📮 Gửi Báo Cáo Bảo Mật & Nhận Mã Tra Cứu Bí Mật
+              </button>
+            </form>
+
+            <!-- Hộp thông báo kết quả gửi thành công kèm Mã Bí Mật & Trạng thái Định tuyến Zalo/Sheet -->
+            <div id="help-submit-result" class="help-result-box hidden" aria-live="polite"></div>
+          </div>
+
+          <!-- Cột 2: Tra Cứu Phản Hồi Bằng Mã Bí Mật & Danh Bạ Cứu Trợ -->
+          <div class="helpbox-right-col">
+            <div class="card lookup-card">
+              <div class="card-header-badge">🔍 Cơ chế Phản hồi & Tra cứu Ẩn danh 2 Chiều</div>
+              <h3>Tra Cứu Tiến Độ & Đọc Phản Hồi Từ Thầy Cô</h3>
+              <p class="card-subtext">
+                Nhập <strong>Mã Tra Cứu Bí Mật</strong> (như mã <code>NA-7868</code>) để xem tiến độ định tuyến Zalo, đồng bộ Google Sheet và đọc lời nhắn phản hồi từ thầy cô mà không cần lộ danh tính hay SĐT.
+              </p>
+
+              <form id="form-lookup-code" class="lookup-form-row">
+                <input
+                  type="text"
+                  id="input-lookup-code"
+                  value="NA-7868"
+                  placeholder="Nhập mã (VD: NA-7868)"
+                  aria-label="Mã tra cứu bí mật"
+                  required
+                />
+                <button type="submit" class="btn-lookup">Tra cứu ngay</button>
+              </form>
+
+              <div class="sample-codes-bar">
+                <span>Mã bảo mật thử nghiệm:</span>
+                <button type="button" class="chip-code" data-code="NA-7868">⭐ NA-7868 (Lớp 7)</button>
+                <button type="button" class="chip-code" data-code="NA-2026">NA-2026 (Lớp 6)</button>
+                <button type="button" class="chip-code" data-code="NA-6868">NA-6868 (Lớp 8)</button>
+                <button type="button" class="chip-code" data-code="NA-9090">NA-9090 (Lớp 9)</button>
+              </div>
+
+              <div id="lookup-result-container" class="lookup-result-container" aria-live="polite"></div>
+            </div>
+
+            <div class="card directory-card">
+              <div class="card-header-badge">📞 Đường Dây Nóng Bảo Vệ Học Sinh</div>
+              <h3>Danh Bạ Hỗ Trợ Khẩn Cấp 24/7</h3>
+              <div id="support-directory-list" class="directory-list"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =================================================================
+           PHÂN HỆ 4: GÓC BÌNH TÂM & VƯỜN HOA TỬ TẾ (WELLNESS & KINDNESS)
+           ================================================================= -->
+      <section id="panel-wellness" role="tabpanel" aria-labelledby="tab-btn-wellness" class="tab-panel hidden">
+        <div class="wellness-grid">
+          <div class="wellness-left-col">
+            <div class="card breathing-card">
+              <div class="card-header-badge">🌬️ Phương pháp Điều hòa Thần kinh 4-4-4</div>
+              <h2>Vòng Tròn Hơi Thở Bình Tâm</h2>
+              <p class="card-subtext">
+                Khi em đang run sợ, tức giận hay muốn khóc, hãy nhìn vào mặt trời nhỏ bên dưới và hít thở theo nhịp để tim đập chậm lại nhé.
+              </p>
+
+              <div class="breathing-visualizer-wrap">
+                <div id="breathing-circle" class="breathing-circle">
+                  <div class="breathing-inner-text">
+                    <span id="breathing-phase-text">Sẵn sàng</span>
+                    <strong id="breathing-timer-num">4s</strong>
+                  </div>
+                </div>
+              </div>
+
+              <div class="breathing-controls">
+                <button type="button" id="btn-toggle-breathing" class="btn-breathing-start">
+                  ▶️ Bắt đầu Tập thở Bình tâm
+                </button>
+              </div>
+            </div>
+
+            <div class="card mood-journal-card">
+              <div class="card-header-badge">📔 Nhật Ký Cảm Xúc Sắc Màu</div>
+              <h3>Ghi lại tâm trạng hôm nay của em</h3>
+              <form id="form-mood-journal" class="safe-form">
+                <div class="form-group">
+                  <label for="journal-mood-select">Hôm nay em cảm thấy:</label>
+                  <select id="journal-mood-select">
+                    <option value="happy">😄 Vui vẻ & Hào hứng</option>
+                    <option value="calm">😌 Bình yên & Nhẹ nhõm</option>
+                    <option value="anxious">😟 Hơi lo lắng & Bối rối</option>
+                    <option value="sad">😢 Buồn & Cô đơn</option>
+                    <option value="stressed">🤯 Áp lực học tập & Mệt mỏi</option>
+                    <option value="angry">😠 Đang bức xúc / Tức giận</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="journal-mood-note">Điều nhỏ bé em muốn ghi nhớ hôm nay:</label>
+                  <input type="text" id="journal-mood-note" placeholder="VD: Hôm nay mình đã dũng cảm giơ tay phát biểu..." required />
+                </div>
+                <button type="submit" class="btn-secondary-full">✨ Lưu vào Nhật ký Nắng Ấm</button>
+              </form>
+
+              <div id="mood-journal-list" class="mood-logs-list"></div>
+            </div>
+          </div>
+
+          <div class="card kindness-wall-card">
+            <div class="card-header-badge">🌻 Lan Tỏa Yêu Thương Khối 6 – Khối 9</div>
+            <h2>Vườn Hoa Tử Tế – Lời Nhắn Từ Bạn Bè</h2>
+            <p class="card-subtext">
+              Một lời động viên ấm áp của em hôm nay có thể giúp một người bạn đang buồn ở lớp bên cạnh mỉm cười trở lại!
+            </p>
+
+            <form id="form-kindness" class="kindness-form">
+              <div class="form-row-2">
+                <div class="form-group">
+                  <label for="kindness-target">Gửi tới:</label>
+                  <input type="text" id="kindness-target" value="Các bạn khối 6, 7, 8, 9 đang cần năng lượng" required />
+                </div>
+                <div class="form-group">
+                  <label for="kindness-color">Màu sắc thiệp:</label>
+                  <select id="kindness-color">
+                    <option value="amber">🌻 Vàng Nắng Ấm</option>
+                    <option value="teal">🌿 Xanh Ngọc Bình Yên</option>
+                    <option value="coral">🌸 Cam San Hô Ngọt Ngào</option>
+                    <option value="sky">☁️ Xanh Bầu Trời Hy Vọng</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="kindness-message">Lời nhắn tích cực của em (*):</label>
+                <textarea
+                  id="kindness-message"
+                  rows="2"
+                  placeholder="Viết một lời chúc hoặc lời động viên thật ấm áp..."
+                  required
+                ></textarea>
+              </div>
+              <div id="kindness-feedback-msg" class="small-note" aria-live="polite"></div>
+              <button type="submit" class="btn-submit-kindness">🌸 Gieo một bông hoa tử tế lên tường</button>
+            </form>
+
+            <div id="kindness-cards-grid" class="kindness-cards-grid"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =================================================================
+           PHÂN HỆ 5: THỐNG KÊ, CẢNH BÁO CHO NHÀ TRƯỜNG & TRANG XỬ LÝ PHÂN QUYỀN (MỤC 3.6 & 6.2)
+           ================================================================= -->
+      <section id="panel-counselor" role="tabpanel" aria-labelledby="tab-btn-counselor" class="tab-panel hidden">
+        <!-- Bảng Thống Kê Xu Hướng Bắt Nạt & Chỉ Số Đánh Giá Hiệu Quả (Mục 3.6 & 6.2) -->
+        <div class="card school-stats-card" style="margin-bottom: 1.25rem;">
+          <div class="card-header-badge">📊 Mục 3.6 & 6.2: Bảng Thống Kê Tổng Hợp, Cảnh Báo Xu Hướng & Đánh Giá Hiệu Quả</div>
+          <h2>Thống Kê Xu Hướng Bắt Nạt & Chỉ Số Đánh Giá Hiệu Quả (Không Làm Lộ Danh Tính Học Sinh)</h2>
+          <p class="small-note">
+            Dữ liệu thống kê được tổng hợp ở quy mô toàn trường để phục vụ hoạt động phòng ngừa và truyền thông, tuyệt đối không làm lộ danh tính học sinh. Việc đánh giá kết hợp khảo sát trước – sau, mức độ hài lòng/tin tưởng, thời gian phản hồi, chất lượng chuyển tuyến và kết quả xử lý phản ánh.
+          </p>
+          <div id="school-analytics-dashboard" class="school-analytics-grid" style="margin-top:0.85rem;"></div>
+        </div>
+
+        <!-- TRỢ LÝ AI CỐ VẤN SƯ PHẠM & PHÁP LÝ DÀNH RIÊNG CHO THẦY CÔ & GROUP BAN GIÁM HIỆU (AI CO-PILOT) -->
+        <div class="card copilot-advisor-card" style="margin-bottom: 1.25rem; background: linear-gradient(180deg, #F0FDF4 0%, #FFFFFF 100%); border: 2px solid #86EFAC;">
+          <div class="card-header-badge" style="background:#DCFCE7; color:#166534; border-color:#86EFAC;">
+            🧠 Trợ Lý AI Cố Vấn Sư Phạm & Pháp Lý (Hỗ trợ cả 3 Luồng Zalo & Group Ban Giám Hiệu)
+          </div>
+          <h2>Bàn Cố Vấn Tình Huống Khó Cho Thầy Cô & Ban Giám Hiệu</h2>
+          <p class="small-note">
+            Hỗ trợ tham mưu phương án xử lý sắc bén, đúng quy định Nhà nước (<strong>Nghị định 80/2017/NĐ-CP, Thông tư 18/2025/TT-BGDĐT, Luật 91/2025/QH15</strong>), phù hợp tâm sinh lý học sinh THCS và kinh nghiệm sư phạm thực chiến.
+          </p>
+
+          <div style="display:flex; flex-wrap:wrap; gap:0.45rem; margin-top:0.65rem;">
+            <button type="button" class="chip-code copilot-quick-q" data-q="Phụ huynh của học sinh bắt nạt phản ứng gay gắt, bênh con và không hợp tác thì BGH và GVCN nên đối thoại thế nào cho sắc bén và đúng luật?">
+              💬 TH1: Phụ huynh bênh con, không hợp tác
+            </button>
+            <button type="button" class="chip-code copilot-quick-q" data-q="Làm sao xử lý vụ học sinh bị trấn lột, dọa đánh ở góc cầu thang mà kẻ bắt nạt tuyệt đối không biết ai đã báo tin?">
+              🛡️ TH2: Xử lý trấn lột không làm lộ người báo
+            </button>
+            <button type="button" class="chip-code copilot-quick-q" data-q="Học sinh lập group chat chế ảnh (meme) bôi nhọ bạn cùng khối thì xử lý thế nào theo Luật Bảo vệ dữ liệu cá nhân 91/2025/QH15?">
+              📱 TH3: Xử lý group chat chế ảnh theo Luật 91/2025
+            </button>
+          </div>
+
+          <form id="form-copilot-advisor" style="display:flex; gap:0.5rem; margin-top:0.65rem; flex-wrap:wrap;">
+            <input
+              type="text"
+              id="input-copilot-question"
+              placeholder="Nhập tình huống thực tế thầy/cô hoặc BGH cần AI tham mưu kịch bản phát ngôn & xử lý..."
+              style="flex:1; min-width:240px; padding:0.55rem 0.75rem; border:1px solid #86EFAC; border-radius:8px;"
+              required
+            />
+            <button type="submit" class="btn-lookup" style="background:#059669;">
+              🧠 Nhờ AI Tham Mưu Phương Án Sắc Bén
+            </button>
+          </form>
+
+          <div id="copilot-advisor-output" class="hidden" style="margin-top:0.75rem; padding:0.85rem; background:#FFFFFF; border:1px solid #BBF7D0; border-radius:10px;"></div>
+        </div>
+
+        <!-- Bảng Đăng Nhập Phân Quyền Quản Trị (RBAC) & Tích Hợp Google Sheet -->
+        <div class="card rbac-control-card" style="margin-bottom: 1.25rem;">
+          <div class="rbac-top-row">
+            <div>
+              <span class="card-header-badge">🔐 Phân Quyền Quản Trị & Bảo Mật Dữ Liệu (RBAC - Mục 5 & 6.1)</span>
+              <h2 id="admin-role-heading">Đang xem: Chế độ Tổng hợp 3 Luồng Zalo & Google Sheet Trung tâm</h2>
+              <p class="small-note">
+                Trang xử lý dành cho giáo viên tư vấn được phân quyền. Mỗi bộ phận được cấp <strong>Mã PIN Phân Quyền</strong> riêng để chỉ xem đúng luồng thuộc thẩm quyền.
+              </p>
+            </div>
+            <div class="rbac-actions-box">
+              <a href="/api/counselor/export-sheet.csv" class="btn-export-sheet" download>
+                📊 Tải Google Sheet (.CSV)
+              </a>
+              <button type="button" id="btn-toggle-webhook-drawer" class="btn-camouflage">
+                📲 Thiết lập Nhanh 3 Zalo (2 Cá nhân + 1 Group BGH) & Google Sheet
+              </button>
+            </div>
+          </div>
+
+          <!-- Khung Chuyển đổi Vai trò Phân quyền (RBAC Login) -->
+          <div class="rbac-login-strip">
+            <form id="form-admin-login" class="rbac-pin-form">
+              <label for="input-admin-pin">Đăng nhập theo Mã PIN Phân quyền:</label>
+              <input type="text" id="input-admin-pin" placeholder="Nhập PIN (VD: TL-2026)" />
+              <button type="submit" class="btn-lookup">Kích hoạt Quyền</button>
+            </form>
+            <div class="rbac-quick-pins">
+              <span>Chuyển nhanh vai trò (Demo):</span>
+              <button type="button" class="chip-code rbac-pin-chip" data-pin="TL-2026">🟢 Zalo 1: GV Tâm Lý (TL-2026)</button>
+              <button type="button" class="chip-code rbac-pin-chip" data-pin="GV-2026">🟡 Zalo 2: GV Chủ Nhiệm (GV-2026)</button>
+              <button type="button" class="chip-code rbac-pin-chip" data-pin="BGH-2026">🔴 Zalo 3: Group Ban Giám Hiệu (BGH-2026)</button>
+            </div>
+          </div>
+          <div id="admin-auth-feedback" class="small-note" style="margin-top:0.4rem; font-weight:700;"></div>
+
+          <!-- Sơ đồ Trạng thái & Mã QR Kết Nối 3 Luồng Zalo Định Tuyến (2 Cá nhân + 1 Group BGH) -->
+          <div class="zalo-streams-grid" id="zalo-streams-overview">
+            <div class="zalo-stream-box teal">
+              <div class="zs-header">
+                <strong>👤 Luồng Zalo 1 (Cá nhân): GV Tâm Lý</strong>
+                <span class="badge-pill" id="count-zalo-psych">0 ca</span>
+              </div>
+              <p class="small-note">Tiếp nhận tâm sự ẩn danh, bị cô lập, áp lực học tập & khủng hoảng tuổi dậy thì.</p>
+              <div class="zalo-qr-connect-row" id="qr-box-zalo-psych"></div>
+            </div>
+            <div class="zalo-stream-box amber">
+              <div class="zs-header">
+                <strong>👤 Luồng Zalo 2 (Cá nhân): GV Chủ Nhiệm</strong>
+                <span class="badge-pill" id="count-zalo-gvcn">0 ca</span>
+              </div>
+              <p class="small-note">Tiếp nhận trêu chọc ngoại hình, giấu đồ, mâu thuẫn nhóm bạn & sắp xếp chỗ ngồi.</p>
+              <div class="zalo-qr-connect-row" id="qr-box-zalo-gvcn"></div>
+            </div>
+            <div class="zalo-stream-box rose">
+              <div class="zs-header">
+                <strong>👥 Luồng Zalo 3 (Group): Ban Giám Hiệu</strong>
+                <span class="badge-pill urgent" id="count-zalo-bgh">0 ca</span>
+              </div>
+              <p class="small-note">Nhóm Zalo BGH xử lý bắt nạt thể chất, trấn lột, bạo lực mạng & tự động CC mọi ca Khẩn cấp.</p>
+              <div class="zalo-qr-connect-row" id="qr-box-zalo-bgh"></div>
+            </div>
+          </div>
+
+          <!-- Ngăn kéo Thiết lập Tinh gọn 3 Luồng Zalo (2 Cá nhân + 1 Group BGH) & Google Sheet Trung tâm -->
+          <div id="webhook-config-drawer" class="webhook-drawer">
+            <h3>⚡ Thiết Lập Kết Nối Siêu Tốc Cho Nhà Trường (3 Luồng Zalo + Google Sheet Trung Tâm)</h3>
+            <p class="small-note" style="margin-top:0.25rem;">
+              Chỉ cần nhập <strong>Số điện thoại Zalo Cá nhân</strong> cho Luồng 1 & Luồng 2, và <strong>Link mời Nhóm Zalo (`https://zalo.me/g/...`)</strong> cho Luồng 3 Group Ban Giám hiệu. Hệ thống sẽ tự động sinh <strong>Mã QR Quét Nhanh</strong> và nút <strong>Chuyển tiếp 1-Chạm sang Zalo</strong> cho thầy cô!
+            </p>
+            <form id="form-webhook-config" class="safe-form" style="margin-top:0.75rem;">
+              <div class="form-row-2">
+                <div class="form-group">
+                  <label for="quick-zalo-psych">👤 Luồng 1 — SĐT / Link Zalo Cá nhân GV Tâm lý (*):</label>
+                  <input type="text" id="quick-zalo-psych" placeholder="VD: 0901234567 hoặc https://zalo.me/0901234567" />
+                </div>
+                <div class="form-group">
+                  <label for="quick-zalo-gvcn">👤 Luồng 2 — SĐT / Link Zalo Cá nhân GV Chủ nhiệm (*):</label>
+                  <input type="text" id="quick-zalo-gvcn" placeholder="VD: 0902345678 hoặc https://zalo.me/0902345678" />
+                </div>
+              </div>
+              <div class="form-row-2">
+                <div class="form-group">
+                  <label for="quick-zalo-bgh">👥 Luồng 3 — Link Group Zalo Ban Giám hiệu (*):</label>
+                  <input type="text" id="quick-zalo-bgh" placeholder="VD: https://zalo.me/g/bghnangam2026" />
+                </div>
+                <div class="form-group">
+                  <label for="wh-google-sheet">📊 Google Apps Script Web App URL (Tự động ghi vào Google Sheet):</label>
+                  <input type="url" id="wh-google-sheet" placeholder="https://script.google.com/macros/s/.../exec" />
+                </div>
+              </div>
+
+              <details style="margin-top:0.35rem; background:#FFFDF7; padding:0.65rem; border-radius:8px; border:1px solid #F2E8CF;">
+                <summary style="cursor:pointer; font-weight:700; font-size:0.86rem; color:#0284C7;">
+                  📋 Bấm xem Mã Google Apps Script (Copy-Paste 30 giây để kết nối Google Sheet tự động 100%) & Webhook nâng cao
+                </summary>
+                <div style="margin-top:0.6rem;">
+                  <p class="small-note">
+                    <strong>Hướng dẫn 3 bước cho thầy cô:</strong> Mở 1 file Google Sheet mới ➔ Chọn <strong>Tiện ích mở rộng (Extensions) &gt; Apps Script</strong> ➔ Dán đoạn mã dưới đây vào rồi bấm <strong>Triển khai (Deploy) &gt; Ứng dụng Web (Anyone)</strong> và dán link vào ô bên trên:
+                  </p>
+                  <div style="display:flex; gap:0.5rem; align-items:center; margin:0.45rem 0;">
+                    <button type="button" id="btn-copy-apps-script" class="btn-secondary-sm">📋 Copy Mã Google Apps Script Chuẩn</button>
+                    <span id="copy-script-feedback" class="small-note" style="color:#059669; font-weight:700;"></span>
+                  </div>
+                  <pre id="apps-script-code-block" style="background:#0F293A; color:#F8FAFC; padding:0.65rem; border-radius:8px; font-size:0.75rem; overflow-x:auto;">function doPost(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var data = JSON.parse(e.postData.contents);
+  var r = data.row || {};
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(["Mã Hồ Sơ", "Thời Gian", "Khối Lớp", "Chế Độ", "Học Sinh/Biệt Danh", "Phân Loại", "Mức Độ", "Luồng Zalo", "Địa Điểm", "Nội Dung", "Trạng Thái", "Phản Hồi GV"]);
+  }
+  sheet.appendRow([r.trackingCode, r.createdAt, r.grade, r.identityMode, r.studentDisplay, r.categoryLabel, r.urgency, r.zaloChannels, r.locationAndTime, r.description, r.status, r.counselorReply]);
+  return ContentService.createTextOutput(JSON.stringify({ ok: true })).setMimeType(ContentService.MimeType.JSON);
+}</pre>
+                  <div class="form-row-2" style="margin-top:0.65rem;">
+                    <div class="form-group">
+                      <label for="wh-zalo-psych">Webhook Bot Tự động Luồng 1 (Tùy chọn):</label>
+                      <input type="url" id="wh-zalo-psych" placeholder="https://... (Nếu dùng Zalo OA/Bot)" />
+                    </div>
+                    <div class="form-group">
+                      <label for="wh-zalo-gvcn">Webhook Bot Tự động Luồng 2 (Tùy chọn):</label>
+                      <input type="url" id="wh-zalo-gvcn" placeholder="https://... (Nếu dùng Zalo OA/Bot)" />
+                    </div>
+                  </div>
+                  <div class="form-group" style="margin-top:0.4rem;">
+                    <label for="wh-zalo-bgh">Webhook Bot Tự động Luồng 3 Group BGH (Tùy chọn):</label>
+                    <input type="url" id="wh-zalo-bgh" placeholder="https://... (Nếu dùng Zalo Bot Group)" />
+                  </div>
+                </div>
+              </details>
+
+              <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap; margin-top:0.5rem;">
+                <button type="submit" class="btn-secondary-sm" style="padding:0.55rem 1.1rem;">
+                  💾 Lưu Kết Nối 3 Luồng Zalo & Google Sheet
+                </button>
+                <span id="webhook-save-msg" class="small-note" style="color:#059669; font-weight:700;"></span>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Bộ lọc Danh sách Hộp thư theo Luồng Zalo & Trạng thái -->
+        <div class="section-intro counselor-intro">
+          <div>
+            <h3>📋 Danh Sách Hồ Sơ Phản Ánh & Bảng Đồng Bộ Google Sheet Trung Tâm</h3>
+          </div>
+          <div class="counselor-filter-group" role="group" aria-label="Lọc hộp thư">
+            <button type="button" class="filter-btn active" data-filter="all">Tất cả</button>
+            <button type="button" class="filter-btn" data-filter="zalo_psych">📲 Zalo Tâm Lý</button>
+            <button type="button" class="filter-btn" data-filter="zalo_gvcn">📲 Zalo GVCN</button>
+            <button type="button" class="filter-btn" data-filter="zalo_bgh">📲 Zalo BGH</button>
+            <button type="button" class="filter-btn" data-filter="pending">⏳ Chờ phản hồi</button>
+            <button type="button" class="filter-btn" data-filter="replied">✅ Đã phản hồi</button>
+          </div>
+        </div>
+
+        <div id="counselor-requests-list" class="counselor-requests-list"></div>
+      </section>
+
+      <!-- =================================================================
+           PHÂN HỆ 6: QUY TRÌNH HOẠT ĐỘNG, YÊU CẦU AN TOÀN - BẢO MẬT & CƠ SỞ PHÁP LÝ (MỤC 1, 4, 5, 6, 7)
+           ================================================================= -->
+      <section id="panel-project-spec" role="tabpanel" aria-labelledby="tab-btn-project-spec" class="tab-panel hidden">
+        <div class="card" style="margin-bottom:1.25rem;">
+          <div class="card-header-badge">🌻 DỰ ÁN ỨNG DỤNG AI “BẠN ĐỒNG HÀNH” (LỚP 6 – LỚP 9)</div>
+          <h2>Mục Tiêu Cốt Lõi & Sáu Chức Năng Chính (Mục 1 & Mục 3)</h2>
+          <p style="margin-top:0.35rem;">
+            <strong>Ý tưởng cốt lõi:</strong> Xây dựng một ứng dụng sử dụng trí tuệ nhân tạo (AI), giúp học sinh lớp 6–9 có nơi chia sẻ những khó khăn tâm lý, được hướng dẫn xử lý tình huống bắt nạt học đường và kết nối với người hỗ trợ phù hợp mà không bắt buộc tiết lộ danh tính khi bắt đầu trò chuyện.
+          </p>
+          <div class="dos-donts-grid" style="margin-top:0.85rem;">
+            <div class="do-box">
+              <h5>🎯 1. Năm Mục Tiêu Của Ứng Dụng</h5>
+              <ul>
+                <li>Tạo không gian an toàn, thân thiện để học sinh chia sẻ cảm xúc.</li>
+                <li>Phát hiện sớm những dấu hiệu học sinh đang bị bắt nạt, cô lập hoặc đe dọa.</li>
+                <li>Cá thể hóa lời khuyên theo độ tuổi (Khối 6–9), cảm xúc và tình huống của từng học sinh.</li>
+                <li>Hướng dẫn kỹ năng tự bảo vệ, ứng xử không bạo lực và tìm kiếm sự giúp đỡ.</li>
+                <li>Hỗ trợ giáo viên phụ trách tư vấn học đường tiếp nhận và xử lý những tình huống cần can thiệp.</li>
+              </ul>
+            </div>
+            <div class="do-box" style="background:#EAF6FF; border-color:#BAE6FD;">
+              <h5 style="color:#0284C7;">⚙️ 3. Sáu Chức Năng Chính Đã Tích Hợp</h5>
+              <ul>
+                <li><strong>3.1. AI tư vấn tâm lý ẩn danh:</strong> Chọn biệt danh, không cần tài khoản; AI lắng nghe, đặt câu hỏi ngắn dễ hiểu, không tự chẩn đoán bệnh tâm lý.</li>
+                <li><strong>3.2. Cá thể hóa hỗ trợ:</strong> Theo khối lớp (6–9), cảm xúc, vai trò (người bị bắt nạt, người chứng kiến, người có hành vi bắt nạt) và mức độ an toàn.</li>
+                <li><strong>3.3. Hộp thư báo cáo bắt nạt:</strong> Văn bản, nhóm tình huống, bổ sung bằng chứng khi cần; chọn ẩn danh hoặc để lại liên hệ.</li>
+                <li><strong>3.4. Thư viện kỹ năng phòng chống bắt nạt:</strong> Tình huống tương tác (lời nói, thể chất, cô lập, trên mạng, chứng kiến, sửa sai).</li>
+                <li><strong>3.5. Kết nối giáo viên tư vấn:</strong> Ưu tiên chuyển ca nguy cơ cao theo quy trình bảo vệ trẻ em.</li>
+                <li><strong>3.6. Thống kê và cảnh báo cho nhà trường:</strong> Tổng hợp xu hướng ở quy mô lớn, không làm lộ danh tính học sinh.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:1.25rem;">
+          <div class="card-header-badge">🔄 Mục 4: Quy Trình Hoạt Động Chuẩn (Bước 1 → Bước 2 → Bước 3A / 3B)</div>
+          <h2>Sơ Đồ Quy Trình Tiếp Nhận & Phân Luồng An Toàn</h2>
+          <div class="progress-pipeline" style="margin-top:0.85rem;">
+            <div class="pipeline-step done">
+              <strong>Bước 1: Truy cập Ẩn danh</strong><br/>
+              Học sinh quét mã QR hoặc truy cập ứng dụng. Không bắt buộc nhập họ tên, lớp hay số điện thoại.
+            </div>
+            <div class="pipeline-step done">
+              <strong>Bước 2: Chia sẻ & Nhận diện</strong><br/>
+              Học sinh chia sẻ cảm xúc và tình huống. AI hỗ trợ xác định nhu cầu, nhận diện dấu hiệu nguy hiểm.
+            </div>
+            <div class="pipeline-step done" style="background:#E6FBF5; border-color:#10B981;">
+              <strong>Bước 3A: Chưa có dấu hiệu nguy hiểm</strong><br/>
+              AI gợi ý kỹ năng, kế hoạch ứng phó và khuyến khích học sinh trao đổi với người lớn đáng tin cậy.
+            </div>
+            <div class="pipeline-step done" style="background:#FFF0ED; border-color:#F9614B;">
+              <strong>Bước 3B: Có nguy cơ mất an toàn</strong><br/>
+              AI ưu tiên các bước đảm bảo an toàn, hướng dẫn liên hệ người lớn (111) và chuyển thông tin theo quy trình can thiệp.
+            </div>
+          </div>
+          <div class="reassurance-banner" style="margin-top:0.75rem;">
+            💡 <strong>Ví dụ tình huống sử dụng thực tế:</strong> Khi một học sinh cho biết thường xuyên bị bạn bè chế giễu trong nhóm lớp, AI không chỉ an ủi chung chung mà còn hướng dẫn <strong>lưu bằng chứng</strong>, tránh tranh cãi có thể gây nguy hiểm và <strong>chọn một giáo viên đáng tin cậy để báo cáo</strong>. Nếu học sinh đang bị đe dọa trực tiếp, ứng dụng ưu tiên hướng dẫn tìm nơi an toàn và người hỗ trợ ngay lập tức.
+          </div>
+        </div>
+
+        <div class="dos-donts-grid" style="margin-bottom:1.25rem;">
+          <div class="card">
+            <div class="card-header-badge">🛡️ Mục 5: Yêu Cầu Bắt Buộc Về An Toàn Và Bảo Mật</div>
+            <h3>4 Nguyên Tắc An Toàn & Đạo Đức AI Học Đường</h3>
+            <ul class="steps-list" style="margin-top:0.65rem;">
+              <li><strong>Ẩn danh có giới hạn:</strong> Không hứa giữ bí mật tuyệt đối. Ứng dụng giải thích rõ những trường hợp phải chia sẻ thông tin tối thiểu cần thiết nhằm bảo vệ học sinh trước nguy cơ nghiêm trọng.</li>
+              <li><strong>Giám sát bởi con người:</strong> AI không thay thế chuyên viên tâm lý, không tự kết luận ai có lỗi và không tự quyết định kỷ luật.</li>
+              <li><strong>Bảo vệ dữ liệu:</strong> Hạn chế thu thập và lưu hội thoại, mã hóa dữ liệu (SHA-256), phân quyền truy cập (RBAC), quy định thời hạn xóa và tuân thủ quy định về dữ liệu cá nhân trẻ em.</li>
+              <li><strong>Can thiệp khẩn cấp:</strong> Khi có dấu hiệu tự gây hại, bạo lực nghiêm trọng hoặc xâm hại, hướng dẫn học sinh tìm người lớn hỗ trợ ngay và liên hệ <strong>Tổng đài Quốc gia bảo vệ trẻ em 111</strong> (miễn phí, 24/7).</li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <div class="card-header-badge">⚖️ Mục 6 & Mục 7: Hiệu Quả Dự Kiến & Tài Liệu Tham Khảo Pháp Lý</div>
+            <h3>Cơ Sở Pháp Lý & Tiêu Chí Đánh Giá</h3>
+            <p class="small-note" style="margin-top:0.4rem;">
+              <strong>Đánh giá hiệu quả (Mục 6.2):</strong> Sử dụng khảo sát trước – sau, mức độ hài lòng và tin tưởng của học sinh, thời gian phản hồi, chất lượng chuyển tuyến và kết quả xử lý phản ánh; không chỉ dựa trên số lượt trò chuyện.
+            </p>
+            <div style="margin-top:0.75rem; display:flex; flex-direction:column; gap:0.55rem;">
+              <div class="directory-item">
+                <strong>1. Chính phủ (2017) – Nghị định số 80/2017/NĐ-CP</strong>
+                <p class="small-note">Quy định về môi trường giáo dục an toàn, lành mạnh, thân thiện, phòng, chống bạo lực học đường.</p>
+                <a href="https://chinhphu.vn/default.aspx?docid=190430&pageid=27160" target="_blank" rel="noopener noreferrer" class="small-note" style="color:#0284C7; font-weight:700;">🔗 Xem văn bản trên Cổng TTĐT Chính phủ</a>
+              </div>
+              <div class="directory-item">
+                <strong>2. Bộ Giáo dục và Đào tạo (2025) – Thông tư số 18/2025/TT-BGDĐT</strong>
+                <p class="small-note">Hướng dẫn về công tác tư vấn học đường và công tác xã hội trong trường học.</p>
+                <a href="https://congbao.chinhphu.vn/van-ban/thong-tu-so-18-2025-tt-bgddt-46274.htm" target="_blank" rel="noopener noreferrer" class="small-note" style="color:#0284C7; font-weight:700;">🔗 Xem văn bản trên Công báo Chính phủ</a>
+              </div>
+              <div class="directory-item">
+                <strong>3. Quốc hội (2025) – Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15</strong>
+                <p class="small-note">Có hiệu lực từ ngày 01/01/2026, bảo vệ nghiêm ngặt dữ liệu cá nhân và quyền riêng tư của trẻ em.</p>
+                <a href="https://vanban.chinhphu.vn/?docid=214590&pageid=27160" target="_blank" rel="noopener noreferrer" class="small-note" style="color:#0284C7; font-weight:700;">🔗 Xem văn bản trên Hệ thống Văn bản Chính phủ</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- MODAL CỨU TRỢ KHẨN CẤP (SOS & TỔNG ĐÀI 111) -->
+    <div id="sos-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="sos-modal-title">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2 id="sos-modal-title">🚨 Hỗ Trợ Khẩn Cấp & Bảo Vệ Học Sinh Ngay Lập Tức (Bước 3B)</h2>
+          <button type="button" id="btn-close-sos" class="btn-close-modal" aria-label="Đóng cửa sổ khẩn cấp">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="sos-alert-banner">
+            <strong>Em không đơn độc!</strong> Khi có dấu hiệu tự gây hại, bạo lực nghiêm trọng hoặc xâm hại, hãy tìm người lớn hỗ trợ ngay và liên hệ Tổng đài Quốc gia bảo vệ trẻ em 111:
+          </div>
+          <div class="sos-steps-grid">
+            <div class="sos-step-box">
+              <div class="sos-number">111</div>
+              <h3>Tổng Đài Quốc Gia Bảo Vệ Trẻ Em</h3>
+              <p>Gọi miễn phí 24/7 trên toàn quốc. Các chuyên gia và cơ quan bảo vệ trẻ em sẽ lắng nghe và can thiệp ngay lập tức.</p>
+              <a href="tel:111" class="btn-call-111">📞 Bấm gọi ngay 111</a>
+            </div>
+            <div class="sos-step-box">
+              <div class="sos-number">🏃</div>
+              <h3>Quy Tắc An Toàn Tức Thì Tại Trường</h3>
+              <ul>
+                <li>Đi ngay vào <strong>Phòng Giám hiệu, Phòng Tư vấn Tâm lý, Phòng Y tế</strong> hoặc chốt <strong>Bảo vệ cổng trường</strong>.</li>
+                <li>Tuyệt đối không đi một mình ra khu vực vắng vẻ sau giờ học.</li>
+                <li>Gửi ngay thông báo khẩn vào Hộp Thư Báo Cáo để giáo viên bảo vệ trẻ em hỗ trợ.</li>
+              </ul>
+              <button type="button" id="btn-sos-go-helpbox" class="btn-go-urgent-box">
+                📮 Mở Hộp Thư Báo Cáo Khẩn Cấp
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="app-footer">
+      <div class="container footer-inner">
+        <div>
+          <strong>🌻 DỰ ÁN ỨNG DỤNG AI “BẠN ĐỒNG HÀNH” (Lắng nghe • Thấu hiểu • Bảo vệ)</strong> — Tư vấn tâm lý ẩn danh, cá thể hóa và phòng chống bắt nạt học đường dành cho học sinh THCS (Lớp 6 – Lớp 9).
+        </div>
+        <div class="footer-note">
+          Căn cứ: Nghị định 80/2017/NĐ-CP • Thông tư 18/2025/TT-BGDĐT • Luật Bảo vệ dữ liệu cá nhân 91/2025/QH15 • Tổng đài Quốc gia bảo vệ trẻ em: <strong>111</strong> (24/7)
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
